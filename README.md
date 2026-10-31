@@ -1,6 +1,6 @@
 # DuelWorks Rocket.Chat style
 
-A custom stylesheet that makes the DuelWorks Rocket.Chat web client easier to read: clearer unread rooms, pill-shaped reactions and buttons, roomier messages, softer surfaces instead of hard divider lines, and the duel.works wordmark in the sidebar.
+A custom stylesheet that makes the DuelWorks Rocket.Chat web client easier to read: clearer unread rooms, pill-shaped buttons and reactions, roomier and more evenly spaced messages, filled rounded fields, softer surfaces instead of hard divider lines, and the duel.works wordmark in the sidebar.
 
 ## Install
 
@@ -13,4 +13,4 @@ A custom stylesheet that makes the DuelWorks Rocket.Chat web client easier to re
 
 - Applies to the web client and desktop app. The native iOS/Android apps ignore custom CSS.
 - Colors, sizes and spacing are tunable in the `:root` block at the top of `custom.css`.
-- Working on the stylesheet? See [`AGENTS.md`](AGENTS.md) for the testing workflow and known Rocket.Chat quirks.
+- Working on the stylesheet? Start with [`AGENTS.md`](AGENTS.md) (workflow, Rocket.Chat quirks, design rules). [`tools/cc-helpers.js`](tools/cc-helpers.js) has the in-browser test helpers.
