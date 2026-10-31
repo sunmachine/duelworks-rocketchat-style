@@ -8,6 +8,12 @@ It's a readability/visual-polish layer — no JS, no build step.
 Read this whole file before changing anything. Most of it is gotchas that
 each cost a round-trip to discover.
 
+> **Nothing in this repo may be sensitive.** It's shared with the team and
+> may be published. No credentials/tokens, emails, people's names or
+> handles, private channel/group names, message content, screenshots of
+> chats, or internal URLs — in files *or* commit messages. Describe test
+> content generically ("a message with an image + reactions") instead.
+
 ---
 
 ## Workflow (every iteration)
@@ -35,10 +41,10 @@ the composer or send messages.
 
 ## Test environment
 
-- Test channels: `/group/tr-artist-review-studio` (image attachments with
-  reactions + threads — the best spacing test), `/channel/general`
-  (threads, quotes, text), `/group/dw-leads-and-admins` (pinned-message
-  text attachment, quotes).
+- Test content: ask the user which channels to use (don't record private
+  channel names here). Cover at least: a message with an **image
+  attachment + reactions + a thread** (the best spacing test), threads and
+  quotes on plain text, and a **pinned-message / bot text attachment**.
 - Opening a thread marks it read for the user's account — fine, but know it.
 - Mobile web layout: load the app in a same-origin 390×844 `<iframe>`
   overlay; media queries respond to the iframe width. It can't emulate touch
