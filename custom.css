@@ -1,0 +1,80 @@
+/* DuelWorks Rocket.Chat custom CSS
+   Paste into: Administration > Workspace > Settings > Layout > Custom CSS
+   Requires a page refresh after saving (Ctrl/Cmd-R). */
+
+/* ::: Emphasis: heavier bold in messages */
+strong, b {
+  font-weight: 850;
+}
+
+/* ::: Sidebar: unread rooms pop, read rooms recede
+   Rows carry data-unread="true|false"; this is more stable than class names. */
+.rcx-sidebar-item {
+  --hl: 29, 155, 209;  /* highlight color (RGB) shared by unread + hover */
+  --clip: 10px;        /* size of the clipped top-right corner */
+  --gap: 2px;          /* trimmed off top & bottom, so adjacent highlights get a 4px gap */
+}
+
+/* Shared shape for unread + hover: clipped corner and gap.
+   clip-path changes paint only, not row height (the sidebar is a
+   virtualized list; margins would break its row math). */
+.rcx-sidebar-item[data-unread="true"],
+.rcx-sidebar-item[aria-current="page"],
+.rcx-sidebar-item:hover,
+.rcx-sidebar-item:focus-visible {
+  clip-path: polygon(
+    0 var(--gap),
+    calc(100% - var(--clip)) var(--gap),
+    100% calc(var(--gap) + var(--clip)),
+    100% calc(100% - var(--gap)),
+    0 calc(100% - var(--gap))
+  );
+}
+
+/* Unread: soft fade from transparent (left) to the highlight color (right) */
+.rcx-sidebar-item[data-unread="true"] {
+  background-image: linear-gradient(to right, rgba(var(--hl), 0), rgba(var(--hl), 0.22)) !important;
+  box-shadow: inset 3px 0 0 rgb(var(--hl));
+}
+
+/* Hover / keyboard focus: same shape, brighter gradient.
+   Drop the default grey hover fill so it doesn't muddy the gradient. */
+.rcx-sidebar-item:hover,
+.rcx-sidebar-item:focus-visible {
+  background-color: transparent !important;
+  background-image: linear-gradient(to right, rgba(var(--hl), 0.10), rgba(var(--hl), 0.45)) !important;
+}
+
+/* Selected (current room): strongest version, with the accent bar.
+   Must come after the hover rule so it wins while hovered. */
+.rcx-sidebar-item[aria-current="page"] {
+  background-color: transparent !important;
+  background-image: linear-gradient(to right, rgba(var(--hl), 0.20), rgba(var(--hl), 0.60)) !important;
+  box-shadow: inset 3px 0 0 rgb(var(--hl));
+}
+
+.rcx-sidebar-item[data-unread="true"] .rcx-sidebar-item__title {
+  font-weight: 700 !important;
+  color: #ffffff !important;
+}
+.rcx-sidebar-item[data-unread="false"]:not([aria-current="page"]) .rcx-sidebar-item__title {
+  color: #8b929c !important;
+}
+.rcx-sidebar-item[aria-current="page"] .rcx-sidebar-item__title {
+  color: #f2f3f5 !important;
+}
+
+/* ::: Messages */
+.rcx-message-header__name {
+  font-size: 15px !important;
+  font-weight: 700 !important;
+}
+.rcx-message-body {
+  font-size: 15px !important;
+  line-height: 1.55 !important;
+  max-width: 85ch; /* keep lines readable on wide monitors */
+}
+/* breathing room between different authors / message groups */
+.rcx-message:not(.rcx-message--sequential) {
+  padding-block-start: 12px !important;
+}
