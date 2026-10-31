@@ -102,7 +102,8 @@ strong, b {
 .rcx-message-body {
   font-size: var(--body-fs) !important;   /* byline name stays 15px/700 */
   line-height: 1.55 !important;
-  max-width: 85ch; /* keep lines readable on wide monitors */
+  /* no max-width: an 85ch cap was tried and removed; chat is mostly short
+     lines, and mid-sentence wraps on wide screens read like a bug */
 }
 /* Message spacing: a little more room around every message.
    Fuselage default: new group 12px 20px 4px, sequential 4px 20px. */
@@ -135,19 +136,25 @@ strong, b {
 .rcx-message-body > br + * {
   margin-top: var(--para-gap) !important;
 }
-/* Vertical rhythm below the text (the container is flex, so margins add):
-     text → anything            8px  (was 4px)
-     attachment → reactions/thread row   8px  (was 2px: chips sat on the image)
-     reactions → thread row     4px  (unchanged; the footer reads as one unit)
-   Attachments are plain <div>s, hence :not(body):not(block) for "attachment". */
-.rcx-message-container > .rcx-message-body {
+/* Vertical rhythm below the text. The container is flex (margins add), so
+   bottom margins are zeroed and every gap is set by the lower item's top:
+     text → anything                         8px
+     anything → reactions / thread row       8px  (images, link previews, …)
+     reactions → thread row                  4px  (the footer reads as one unit)
+     attachment part → attachment part       6px  (rule further down)
+   Reactions/thread rows are identified by content (:has), not by class:
+   link previews are .rcx-message-block too, and images are plain <div>s. */
+.rcx-message-container > :not(.rcx-message-header) {
   margin-bottom: 0 !important;
 }
 .rcx-message-container > .rcx-message-body + * {
   margin-top: 8px !important;
 }
-.rcx-message-container > :not(.rcx-message-body):not(.rcx-message-block) + .rcx-message-block {
+.rcx-message-container > .rcx-message-block:has(.rcx-message-reactions__container, .rcx-message-metrics__content-wrapper) {
   margin-top: 8px !important;
+}
+.rcx-message-container > .rcx-message-block:has(.rcx-message-reactions__container, .rcx-message-metrics__content-wrapper) + .rcx-message-block:has(.rcx-message-reactions__container, .rcx-message-metrics__content-wrapper) {
+  margin-top: 4px !important;
 }
 /* Image attachments: rounded corners (same radius as text fields), and no
    1px outline. The <picture> wrapper carries Fuselage's border + 2px radius;
@@ -320,8 +327,8 @@ footer .rcx-input-box__wrapper .rcx-divider {  /* group separators: spacing, not
    gets a softer bar, so quoting a message vs quoting text stays distinguishable. */
 
 /* 1. Quote attachments (the "Quote" message action).
-   Box hugs its content instead of spanning the full column, so it lines up
-   with the 85ch text cap instead of leaving an empty band on the right. */
+   Box hugs its content instead of spanning the full column, so short quotes
+   don't leave an empty band on the right. */
 blockquote.rcx-attachment__details {
   width: fit-content;
   max-width: 100%;
