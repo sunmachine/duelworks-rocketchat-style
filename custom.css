@@ -23,6 +23,7 @@ strong, b {
   --bg-drawer-header: rgb(30, 34, 40); /* drawer title bar */
   --bg-field: rgb(41, 46, 54);         /* composer, replacing its outline */
   --bg-field-drawer: rgb(34, 38, 45);  /* composer inside a drawer */
+  --fade-line: rgba(255, 255, 255, 0.14); /* center color of the fade-out divider lines */
 }
 
 /* Shared shape for unread / selected / hover / focus: clipped corner and gap.
@@ -137,6 +138,24 @@ header > hr.rcx-divider {                  /* line under the channel header */
 .rcx-vertical-bar > div:first-child {      /* drawer title bar */
   background-color: var(--bg-drawer-header) !important;
   border-bottom: 0 !important;
+}
+
+/* Fade-out dividers: 1px lines that are visible in the middle and fade to
+   nothing at both ends. Drawn as a 1px background-image layer pinned to an
+   edge (not a border or ::after), so no element needs position: relative —
+   which could disturb the drawer's overlay positioning on mobile. */
+.rcx-room-header,                          /* under the channel header */
+.rcx-vertical-bar > div:first-child {      /* under the drawer title bar */
+  background-image: linear-gradient(to right, transparent, var(--fade-line), transparent) !important;
+  background-size: 100% 1px !important;
+  background-position: bottom !important;
+  background-repeat: no-repeat !important;
+}
+.rcx-vertical-bar.rcx-vertical-bar {       /* drawer's left edge: vertical, fades top + bottom */
+  background-image: linear-gradient(to bottom, transparent, var(--fade-line), transparent) !important;
+  background-size: 1px 100% !important;
+  background-position: left !important;
+  background-repeat: no-repeat !important;
 }
 
 /* ::: Composer: filled field instead of an outlined box */
