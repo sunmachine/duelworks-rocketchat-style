@@ -95,7 +95,17 @@ icon buttons may feel small for touch in admin/dialogs.
 Paste the file into the page. Reloads wipe it (including when the admin
 saves new CSS) — re-paste. The header comment lists every function. Key ones:
 `ccApply`, `ccAudit`, `ccRestore`, `ccGo`, `ccStore`/`ccUse`,
-`ccCompare`/`ccGroup`, `ccLiveHash`.
+`ccCompare`/`ccGroup`, `ccLiveHash`, `ccSanitize`.
+
+### README screenshot — `docs/screenshot.jpg`
+
+Retake it after visible style changes. In the user's tab (with their OK):
+paste the helpers, run `ccSanitize()` (swaps names, avatars, room names,
+message text, file names and media for placeholders — DOM only), read its
+"remaining text" list and fix anything real, move the pointer to a corner,
+then screenshot with `save_to_disk` and copy it over. Look at the image
+before committing: it's public. Custom emoji, timestamps and UI labels are
+fine; anything else identifying is not. Reload the tab afterwards.
 
 ### Regression-checking a refactor
 

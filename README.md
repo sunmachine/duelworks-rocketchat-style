@@ -2,6 +2,8 @@
 
 A custom stylesheet that makes the DuelWorks Rocket.Chat web client easier to read: clearer unread rooms, pill-shaped buttons and reactions, roomier and more evenly spaced messages, filled rounded fields, softer surfaces instead of hard divider lines, and the duel.works wordmark in the sidebar.
 
+![The stylesheet applied: sidebar with highlighted unread rooms, a channel with a video attachment, reaction pills and a thread row, and an open thread drawer. Names and messages are Lorem Ipsum placeholders.](docs/screenshot.jpg)
+
 ## Install
 
 1. Copy the contents of [`custom.css`](custom.css).
