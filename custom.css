@@ -25,6 +25,8 @@ strong, b {
   --bg-field-drawer: rgb(34, 38, 45);  /* composer inside a drawer */
   --fade-line: rgba(255, 255, 255, 0.14); /* center color of the fade-out divider lines */
   --field-radius: 10.4px; /* text fields + dropdowns (Fuselage default 4px; 8px +30%) */
+  --msg-indent: 6px;   /* message text/blocks indent past the byline */
+  --para-gap: 8px;     /* gap for a blank line between paragraphs (was a full ~23px line) */
 }
 
 /* Shared shape for unread / selected / hover / focus: clipped corner and gap.
@@ -111,6 +113,26 @@ strong, b {
 }
 .rcx-message--sequential {                     /* follow-ups from the same author */
   padding-block: 5px !important;
+}
+/* Indent everything below the byline (text, attachments, reactions, thread
+   footer) so the text isn't flush with the author name. Moving the blocks too
+   keeps reactions / View thread aligned with the text. */
+.rcx-message-container > .rcx-message-body,
+.rcx-message-container > .rcx-message-block {
+  margin-inline-start: var(--msg-indent) !important;
+}
+/* More air between the byline and the first line (was 2px + 2px) */
+.rcx-message-header {
+  margin-bottom: 6px !important;
+}
+/* Paragraph spacing. A blank line in a message renders as a <br> between two
+   block-level lines, which takes a full line-height (~23px). Chrome ignores
+   display/margin on <br>, so hide it and put a smaller gap on what follows. */
+.rcx-message-body > br {
+  display: none !important;
+}
+.rcx-message-body > br + * {
+  margin-top: var(--para-gap) !important;
 }
 
 /* ::: Surfaces: background contrast instead of 1px divider lines
