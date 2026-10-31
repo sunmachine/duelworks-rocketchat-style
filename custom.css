@@ -100,9 +100,16 @@ strong, b {
   line-height: 1.55 !important;
   max-width: 85ch; /* keep lines readable on wide monitors */
 }
-/* breathing room between different authors / message groups */
-.rcx-message:not(.rcx-message--sequential) {
-  padding-block-start: 12px !important;
+/* Message spacing: a little more room around every message.
+   Fuselage default: new group 12px 20px 4px, sequential 4px 20px. */
+.rcx-message {
+  padding-inline: 24px !important;
+}
+.rcx-message:not(.rcx-message--sequential) {   /* first message from an author */
+  padding-block: 16px 6px !important;
+}
+.rcx-message--sequential {                     /* follow-ups from the same author */
+  padding-block: 5px !important;
 }
 
 /* ::: Surfaces: background contrast instead of 1px divider lines
@@ -127,6 +134,9 @@ header > hr.rcx-divider {                  /* line under the channel header */
 }
 .rcx-sidebar--divider {                    /* line above the sidebar footer logo; keeps its spacing */
   visibility: hidden !important;
+}
+.rcx-sidebar-footer {                      /* logo footer: same surface as the drawers */
+  background-color: var(--bg-drawer) !important;
 }
 /* Right-hand drawers (thread, room info, members, search…): darker than the channel.
    Doubled class: Fuselage sets bg + border via `.rcx-css-xxxx { … !important }`
@@ -156,6 +166,50 @@ header > hr.rcx-divider {                  /* line under the channel header */
   background-size: 1px 100% !important;
   background-position: left !important;
   background-repeat: no-repeat !important;
+}
+
+/* ::: Icon buttons: top bar, channel header, drawer header, message hover panel
+   Sized like the message footer + composer toolbar: 24px round, 16px icons.
+   (Selectors written out instead of :is() so each is plain to read/audit.)
+   The avatar ("User menu") button contains a <figure> and keeps its size. */
+.rcx-navbar .rcx-button--square:not(:has(figure)),
+.rcx-room-header .rcx-button--square:not(:has(figure)),
+.rcx-vertical-bar > div:first-child .rcx-button--square:not(:has(figure)),
+.rcx-message-toolbar .rcx-button--square:not(:has(figure)) {
+  width: var(--pill-h) !important;
+  min-width: var(--pill-h) !important;      /* Fuselage pins min-width: 28px */
+  height: var(--pill-h) !important;
+  min-height: var(--pill-h) !important;
+  border-radius: 999px !important;
+}
+.rcx-navbar .rcx-button--square .rcx-icon,
+.rcx-room-header .rcx-button--square .rcx-icon,
+.rcx-vertical-bar > div:first-child .rcx-button--square .rcx-icon,
+.rcx-message-toolbar .rcx-button--square .rcx-icon {
+  font-size: 16px !important;
+}
+/* toggled-on header buttons (e.g. the open thread/info panel): theme tint, not grey */
+.rcx-navbar .rcx-button--icon-pressed,
+.rcx-room-header .rcx-button--icon-pressed,
+.rcx-vertical-bar > div:first-child .rcx-button--icon-pressed {
+  background-color: rgba(var(--hl), 0.22) !important;
+  color: #ffffff !important;
+}
+
+/* Message hover panel (react / reply / quote / ...): floating capsule.
+   No border line; lifted off the message with a shadow instead. */
+.rcx-message-toolbar.rcx-message-toolbar {
+  border: 0 !important;
+  border-radius: 999px !important;
+  padding: 3px 5px !important;
+  background-color: var(--bg-field) !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35) !important;
+}
+.rcx-message-toolbar button:not(:has(.rcx-icon)) span {   /* quick-reaction emoji: 16px like reaction chips */
+  width: 16px !important;
+  height: 16px !important;
+  font-size: 14px !important;
+  background-size: contain !important;
 }
 
 /* ::: Composer: filled field instead of an outlined box */
