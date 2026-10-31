@@ -180,39 +180,27 @@ header > hr.rcx-divider {                  /* line under the channel header */
    ::: Controls — round icon buttons, pills, fields
    ========================================================================== */
 
-/* Round icon buttons: 24px, 16px icons. The avatar ("User menu") button holds
-   a <figure> and keeps its size. Fuselage pins min-width: 28px. */
-.rcx-navbar .rcx-button--square:not(:has(figure)),
-.rcx-room-header .rcx-button--square:not(:has(figure)),
-.rcx-vertical-bar > div:first-child .rcx-button--square:not(:has(figure)),
-.rcx-message-toolbar .rcx-button--square:not(:has(figure)) {
+/* Buttons — app-wide, by component (not by location), so new panels, forms
+   and dialogs pick the look up automatically. Doubled class where Fuselage
+   sets the same property via a later `.rcx-css-xxxx {…!important}`. */
+.rcx-button.rcx-button {                    /* text buttons → pills, square buttons → circles */
+  border-radius: 999px !important;
+}
+/* Small icon buttons (Fuselage 28px, 20px icons) → 24px, 16px icons: top bar,
+   headers, drawers, hover toolbar, composer toolbar, sidebar, forms.
+   The avatar ("User menu") button holds a <figure> and keeps its size;
+   Fuselage pins min-width: 28px. */
+.rcx-button--small-square:not(:has(figure)) {
   width: var(--pill-h) !important;
   min-width: var(--pill-h) !important;
   height: var(--pill-h) !important;
   min-height: var(--pill-h) !important;
-  border-radius: 999px !important;
 }
-footer .rcx-input-box__wrapper .rcx-button--square {   /* composer formatting toolbar */
-  width: var(--pill-h) !important;
-  height: var(--pill-h) !important;
-  min-height: var(--pill-h) !important;
-  border-radius: 999px !important;
-}
-.rcx-navbar .rcx-button--square .rcx-icon,
-.rcx-room-header .rcx-button--square .rcx-icon,
-.rcx-vertical-bar > div:first-child .rcx-button--square .rcx-icon,
-.rcx-message-toolbar .rcx-button--square .rcx-icon,
-footer .rcx-input-box__wrapper .rcx-button--square .rcx-icon,
-.rcx-message-metrics__item .rcx-button--square .rcx-icon {
+.rcx-button--small-square .rcx-icon {
   font-size: var(--icon-fs) !important;
 }
-.rcx-message-container .rcx-button--mini-square {      /* ⌄ toggles, download, quote jump-to */
-  border-radius: 999px !important;
-}
-/* toggled-on header buttons (open thread/info panel): accent tint, not grey */
-.rcx-navbar .rcx-button--icon-pressed,
-.rcx-room-header .rcx-button--icon-pressed,
-.rcx-vertical-bar > div:first-child .rcx-button--icon-pressed {
+/* toggled-on icon buttons (open thread/info panel…): accent tint, not grey */
+.rcx-button--icon-pressed.rcx-button--icon-pressed {
   background-color: rgba(var(--hl), 0.22) !important;
   color: var(--text-strong) !important;
 }
@@ -300,24 +288,37 @@ footer .rcx-input-box__wrapper .rcx-button--square .rcx-icon,
   font-weight: 600 !important;
 }
 
-/* Fields: rounder corners */
-footer .rcx-input-box__wrapper,
-.rcx-navbar label.rcx-input-box__wrapper,
-.rcx-vertical-bar label.rcx-input-box__wrapper,
-.rcx-vertical-bar .rcx-select {
+/* Fields — app-wide: filled, no outline, rounder; soft accent glow on focus
+   (not Fuselage's bright 2px ring). A field is either a bare decorated
+   .rcx-input-box (forms) or a .rcx-input-box__wrapper holding an undecorated
+   one (composer, searches); dropdowns are .rcx-select. */
+.rcx-input-box:not(.rcx-input-box--undecorated),
+.rcx-input-box__wrapper,
+.rcx-select {
   border-radius: var(--field-radius) !important;   /* rcx-box--animated: radius changes animate in */
-}
-/* Composer: filled field, soft focus glow (not Fuselage's bright 2px ring) */
-footer .rcx-input-box__wrapper {
   border-color: transparent !important;
   background-color: var(--bg-field) !important;
 }
-.rcx-vertical-bar footer .rcx-input-box__wrapper {
+.rcx-vertical-bar .rcx-input-box:not(.rcx-input-box--undecorated),
+.rcx-vertical-bar .rcx-input-box__wrapper,
+.rcx-vertical-bar .rcx-select {
   background-color: var(--bg-field-drawer) !important;
 }
-footer .rcx-input-box__wrapper:focus-within {
+.rcx-input-box:not(.rcx-input-box--undecorated):focus,
+.rcx-input-box__wrapper:focus-within,
+.rcx-select:focus-within {
   border-color: transparent !important;
   box-shadow: inset 0 0 0 1px rgba(var(--hl), 0.55) !important;
+}
+/* disabled fields: our fill replaces Fuselage's dimmer disabled fill, so dim them explicitly */
+.rcx-input-box:disabled,
+.rcx-select.disabled {
+  opacity: 0.55;
+}
+/* invalid fields: with the outline gone, the error needs its own edge */
+.rcx-input-box[aria-invalid="true"],
+.rcx-input-box__wrapper:has([aria-invalid="true"]) {
+  box-shadow: inset 0 0 0 1px var(--rcx-color-stroke-error, rgb(236, 13, 42)) !important;
 }
 footer .rcx-input-box__wrapper .rcx-divider {     /* toolbar group separators (drawn with bg): spacing instead */
   background-color: transparent !important;
@@ -410,8 +411,9 @@ footer .rcx-input-box__wrapper .rcx-divider {     /* toolbar group separators (d
   align-items: center;
 }
 
-/* Media: images (<picture> around img.gallery-item, generated classes only) */
-.rcx-message-container picture:has(> img.gallery-item) {
+/* Media: images (<picture> around img.gallery-item, generated classes only) and video */
+.rcx-message-container picture:has(> img.gallery-item),
+.rcx-message-container video:not(.rcx-message-generic-preview *) {   /* link-preview cards clip their own media */
   border: 0 !important;
   border-radius: var(--field-radius) !important;
   overflow: hidden !important;
