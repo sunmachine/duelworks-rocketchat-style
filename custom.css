@@ -1,38 +1,74 @@
 /* DuelWorks Rocket.Chat custom CSS
    Paste into: Administration > Workspace > Settings > Layout > Custom CSS
-   Requires a page refresh after saving (Ctrl/Cmd-R). */
+   Requires a page refresh after saving (Ctrl/Cmd-R).
+   Maintainers: read AGENTS.md first — most rules exist because of a Fuselage
+   quirk documented there. */
 
-/* ::: Emphasis: heavier bold in messages */
+
+/* ============================================================================
+   ::: Tokens — every tunable value lives here
+   ========================================================================== */
+:root {
+  /* accent */
+  --hl: 29, 155, 209;                    /* highlight color as an RGB triplet: rgba(var(--hl), a) */
+
+  /* surfaces: regions are separated by background steps, not border lines.
+     top bar + sidebar stay Fuselage's rgb(47,52,61); channel is rgb(31,35,41) */
+  --bg-header: rgb(38, 42, 50);          /* channel header */
+  --bg-drawer: rgb(24, 27, 32);          /* right-hand drawers + sidebar logo footer */
+  --bg-drawer-header: rgb(30, 34, 40);   /* drawer title bar */
+  --bg-field: rgb(41, 46, 54);           /* filled text fields (composer), floating toolbar */
+  --bg-field-drawer: rgb(34, 38, 45);    /* filled text fields inside a drawer */
+  --bg-search: rgba(0, 0, 0, 0.2);       /* "Search rooms" in the top bar */
+  --panel: rgba(255, 255, 255, 0.035);   /* tinted panels: quotes, text attachments, link previews */
+  --panel-hover: rgba(255, 255, 255, 0.05);
+  --fade-line: rgba(255, 255, 255, 0.14);/* center color of the fade-out hairlines */
+  --shadow-float: 0 4px 14px rgba(0, 0, 0, 0.35);
+
+  /* text */
+  --text-strong: #ffffff;
+  --text: #f2f3f5;
+  --text-soft: #c1c7d0;                  /* footer labels, pill text */
+  --text-quote: #aeb5bf;                 /* quoted / attachment text */
+  --text-muted: #8b929c;                 /* read rooms, timestamps */
+  --text-mine: #d6efff;                  /* count on your own reaction */
+
+  /* pills (reactions, View thread, follow bell) */
+  --pill-h: 24px;                        /* also the size of round icon buttons */
+  --pill-bg: rgba(255, 255, 255, 0.04);
+  --pill-bg-hover: rgba(255, 255, 255, 0.08);
+  --pill-border: rgba(255, 255, 255, 0.08);
+  --pill-border-hover: rgba(255, 255, 255, 0.22);
+  --icon-fs: 16px;                       /* icon size inside 24px controls (Fuselage: 20px) */
+
+  /* shape */
+  --clip: 10px;                          /* the clipped top-right corner motif */
+  --corner-shape: polygon(0 0, calc(100% - var(--clip)) 0, 100% var(--clip), 100% 100%, 0 100%);
+  --field-radius: 10.4px;                /* fields, dropdowns, images, link previews (Fuselage: 4px) */
+  --gap: 2px;                            /* sidebar: trimmed off highlight top + bottom (4px between rows) */
+
+  /* type + message rhythm */
+  --body-fs: 14px;                       /* message text, one step under the 15px/700 byline */
+  --footer-fs: 11px;                     /* reaction counts, View thread, reply count */
+  --msg-indent: 12px;                    /* message content indent past the byline */
+  --para-gap: 8px;                       /* blank line between paragraphs (Fuselage: a full ~23px line) */
+}
+
+
+/* ============================================================================
+   ::: Emphasis
+   ========================================================================== */
 strong, b {
   font-weight: 850;
 }
 
-/* ::: Sidebar: unread rooms pop, read rooms recede
-   Rows carry data-unread="true|false"; this is more stable than class names. */
-/* Shared design tokens (on :root so sidebar, quotes, etc. can all use them) */
-:root {
-  --hl: 29, 155, 209;  /* highlight color (RGB): sidebar, quote accent bars */
-  --clip: 10px;        /* size of the clipped top-right corner motif */
-  --gap: 2px;          /* sidebar: trimmed off top & bottom, so adjacent highlights get a 4px gap */
-  --footer-fs: 11px;   /* message footer labels: reaction counts, View thread, reply count */
-  --pill-h: 24px;      /* height of reaction + View thread pills */
 
-  /* Surfaces: regions are separated by background steps, not border lines */
-  --bg-header: rgb(38, 42, 50);        /* channel header (top bar + sidebar stay Fuselage's rgb(47,52,61)) */
-  --bg-drawer: rgb(24, 27, 32);        /* right-hand drawers: thread, room info, members… (channel is rgb(31,35,41)) */
-  --bg-drawer-header: rgb(30, 34, 40); /* drawer title bar */
-  --bg-field: rgb(41, 46, 54);         /* composer, replacing its outline */
-  --bg-field-drawer: rgb(34, 38, 45);  /* composer inside a drawer */
-  --fade-line: rgba(255, 255, 255, 0.14); /* center color of the fade-out divider lines */
-  --field-radius: 10.4px; /* text fields + dropdowns (Fuselage default 4px; 8px +30%) */
-  --msg-indent: 12px;  /* message text/blocks indent past the byline (was 6px) */
-  --para-gap: 8px;     /* gap for a blank line between paragraphs (was a full ~23px line) */
-  --body-fs: 14px;     /* message text; one step under the 15px bold byline so they don't blur together */
-}
-
-/* Shared shape for unread / selected / hover / focus: clipped corner and gap.
-   clip-path changes paint only, not row height (the sidebar is a
-   virtualized list; margins would break its row math). */
+/* ============================================================================
+   ::: Sidebar — unread rooms pop, read rooms recede
+   Rows carry data-unread="true|false" and aria-current="page" (stabler than
+   classes). The list is virtualized, so row shape/gaps use clip-path (paint
+   only) — never margins or padding.
+   ========================================================================== */
 .rcx-sidebar-item {
   --row-shape: polygon(
     0 var(--gap),
@@ -47,22 +83,17 @@ strong, b {
 .rcx-sidebar-item:focus-visible {
   clip-path: var(--row-shape);
 }
-
-/* Unread: soft fade from transparent (left) to the highlight color (right) */
+/* unread: fade from transparent (left) to accent (right) + accent bar */
 .rcx-sidebar-item[data-unread="true"] {
   background-image: linear-gradient(to right, rgba(var(--hl), 0), rgba(var(--hl), 0.22)) !important;
   box-shadow: inset 3px 0 0 rgb(var(--hl));
 }
-
-/* Hover / keyboard focus: same shape, brighter gradient.
-   Drop the default grey hover fill so it doesn't muddy the gradient. */
+/* hover / keyboard focus: same shape, brighter; drop Fuselage's grey fill */
 .rcx-sidebar-item:focus-visible {
   background-color: transparent !important;
   background-image: linear-gradient(to right, rgba(var(--hl), 0.10), rgba(var(--hl), 0.45)) !important;
 }
-/* Hover only on devices with a real pointer. On touchscreens :hover "sticks"
-   to the last-tapped row, which would leave a stray highlight behind. */
-@media (hover: hover) {
+@media (hover: hover) {   /* real pointers only: on touch, :hover sticks to the last tap */
   .rcx-sidebar-item:hover {
     clip-path: var(--row-shape);
     background-color: transparent !important;
@@ -71,89 +102,284 @@ strong, b {
 }
 @media (hover: none) {
   .rcx-sidebar-item:hover {
-    background-color: transparent !important;   /* suppress Fuselage's sticky grey too */
+    background-color: transparent !important;
   }
 }
-
-/* Selected (current room): strongest version, with the accent bar.
-   Must come after the hover rule so it wins while hovered. */
+/* selected (current room): strongest. Must come AFTER hover so it wins while hovered. */
 .rcx-sidebar-item[aria-current="page"] {
   background-color: transparent !important;
   background-image: linear-gradient(to right, rgba(var(--hl), 0.20), rgba(var(--hl), 0.60)) !important;
   box-shadow: inset 3px 0 0 rgb(var(--hl));
 }
-
 .rcx-sidebar-item[data-unread="true"] .rcx-sidebar-item__title {
   font-weight: 700 !important;
-  color: #ffffff !important;
+  color: var(--text-strong) !important;
 }
 .rcx-sidebar-item[data-unread="false"]:not([aria-current="page"]) .rcx-sidebar-item__title {
-  color: #8b929c !important;
+  color: var(--text-muted) !important;
 }
 .rcx-sidebar-item[aria-current="page"] .rcx-sidebar-item__title {
-  color: #f2f3f5 !important;
+  color: var(--text) !important;
 }
 
-/* ::: Messages */
+
+/* ============================================================================
+   ::: Surfaces — background steps instead of 1px divider lines
+   Lightest → darkest: top bar/sidebar → channel header → channel → drawer.
+   ========================================================================== */
+.rcx-navbar {
+  border-bottom: 0 !important;
+}
+.rcx-navbar label.rcx-label {              /* "Search rooms": fill instead of outline */
+  border-color: transparent !important;
+  background-color: var(--bg-search) !important;
+}
+.rcx-room-header {
+  background-color: var(--bg-header) !important;
+}
+.rcx-room-header > div {                   /* full-width strip painted in the channel color; hides the header bg */
+  background-color: transparent !important;
+}
+.rcx-room-header hr.rcx-divider,
+header > hr.rcx-divider {                  /* line under the channel header */
+  display: none !important;
+}
+.rcx-sidebar--divider {                    /* line above the logo footer; keep its spacing */
+  visibility: hidden !important;
+}
+.rcx-sidebar-footer {
+  background-color: var(--bg-drawer) !important;
+}
+/* Right-hand drawers (thread, threads list, room info, members, search…).
+   Doubled class: Fuselage sets bg + border via a later `.rcx-css-xxxx {…!important}`.
+   The left edge hairline is a 1px background layer (no position:relative —
+   that would disturb the drawer's mobile overlay positioning). */
+.rcx-vertical-bar.rcx-vertical-bar {
+  border: 0 !important;
+  background-color: var(--bg-drawer) !important;
+  background-image: linear-gradient(to bottom, transparent, var(--fade-line), transparent) !important;
+  background-size: 1px 100% !important;
+  background-position: left !important;
+  background-repeat: no-repeat !important;
+}
+.rcx-vertical-bar > div:first-child {      /* drawer title bar */
+  background-color: var(--bg-drawer-header) !important;
+  border-bottom: 0 !important;
+}
+/* fade-out hairline under the channel header and drawer title bar */
+.rcx-room-header,
+.rcx-vertical-bar > div:first-child {
+  background-image: linear-gradient(to right, transparent, var(--fade-line), transparent) !important;
+  background-size: 100% 1px !important;
+  background-position: bottom !important;
+  background-repeat: no-repeat !important;
+}
+
+
+/* ============================================================================
+   ::: Controls — round icon buttons, pills, fields
+   ========================================================================== */
+
+/* Round icon buttons: 24px, 16px icons. The avatar ("User menu") button holds
+   a <figure> and keeps its size. Fuselage pins min-width: 28px. */
+.rcx-navbar .rcx-button--square:not(:has(figure)),
+.rcx-room-header .rcx-button--square:not(:has(figure)),
+.rcx-vertical-bar > div:first-child .rcx-button--square:not(:has(figure)),
+.rcx-message-toolbar .rcx-button--square:not(:has(figure)) {
+  width: var(--pill-h) !important;
+  min-width: var(--pill-h) !important;
+  height: var(--pill-h) !important;
+  min-height: var(--pill-h) !important;
+  border-radius: 999px !important;
+}
+footer .rcx-input-box__wrapper .rcx-button--square {   /* composer formatting toolbar */
+  width: var(--pill-h) !important;
+  height: var(--pill-h) !important;
+  min-height: var(--pill-h) !important;
+  border-radius: 999px !important;
+}
+.rcx-navbar .rcx-button--square .rcx-icon,
+.rcx-room-header .rcx-button--square .rcx-icon,
+.rcx-vertical-bar > div:first-child .rcx-button--square .rcx-icon,
+.rcx-message-toolbar .rcx-button--square .rcx-icon,
+footer .rcx-input-box__wrapper .rcx-button--square .rcx-icon,
+.rcx-message-metrics__item .rcx-button--square .rcx-icon {
+  font-size: var(--icon-fs) !important;
+}
+.rcx-message-container .rcx-button--mini-square {      /* ⌄ toggles, download, quote jump-to */
+  border-radius: 999px !important;
+}
+/* toggled-on header buttons (open thread/info panel): accent tint, not grey */
+.rcx-navbar .rcx-button--icon-pressed,
+.rcx-room-header .rcx-button--icon-pressed,
+.rcx-vertical-bar > div:first-child .rcx-button--icon-pressed {
+  background-color: rgba(var(--hl), 0.22) !important;
+  color: var(--text-strong) !important;
+}
+
+/* Message hover toolbar (react / reply / quote / …): floating capsule, shadow not border */
+.rcx-message-toolbar.rcx-message-toolbar {
+  border: 0 !important;
+  border-radius: 999px !important;
+  padding: 3px 5px !important;
+  background-color: var(--bg-field) !important;
+  box-shadow: var(--shadow-float) !important;
+}
+.rcx-message-toolbar button:not(:has(.rcx-icon)) span {  /* quick-reaction emoji: 16px like reaction chips */
+  width: 16px !important;
+  height: 16px !important;
+  font-size: 14px !important;
+  background-size: contain !important;
+}
+
+/* Pills: reactions, "View thread", follow bell — one look */
+.rcx-message-reactions__reaction,
+.rcx-message-metrics__item .rcx-button {
+  box-sizing: border-box;
+  height: var(--pill-h) !important;
+  min-height: var(--pill-h) !important;
+  border-radius: 999px !important;
+  border: 1px solid var(--pill-border) !important;
+  background-color: var(--pill-bg) !important;
+}
+.rcx-message-reactions__reaction {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 5px;
+  margin: 0 !important;
+  padding: 0 10px 0 8px !important;
+}
+.rcx-message-metrics__item .rcx-button {
+  color: var(--text-soft) !important;
+}
+.rcx-message-metrics__item .rcx-button:not(.rcx-button--square) {   /* View thread */
+  padding: 0 12px !important;
+  font-size: var(--footer-fs) !important;
+  font-weight: 600 !important;
+  line-height: 1 !important;
+}
+.rcx-message-metrics__item .rcx-button--square {                    /* follow bell: capsule */
+  width: 34px !important;
+}
+/* unread replies (Fuselage "primary"): accent pill instead of #095ad2 */
+.rcx-message-metrics__item .rcx-button--primary:not(.rcx-button--square) {
+  border-color: rgba(var(--hl), 0.8) !important;
+  background-color: rgba(var(--hl), 0.35) !important;
+  color: var(--text-strong) !important;
+}
+/* hover — after the primary rule so it wins the border tie; primary hover wins bg by specificity */
+.rcx-message-reactions__reaction:hover,
+.rcx-message-metrics__item .rcx-button:hover {
+  border-color: var(--pill-border-hover) !important;
+  background-color: var(--pill-bg-hover) !important;
+}
+.rcx-message-metrics__item .rcx-button--primary:not(.rcx-button--square):hover {
+  background-color: rgba(var(--hl), 0.5) !important;
+}
+/* your own reactions: accent pill */
+.rcx-message-reactions__reaction--mine {
+  border-color: rgba(var(--hl), 0.6) !important;
+  background-color: rgba(var(--hl), 0.18) !important;
+}
+.rcx-message-reactions__reaction--mine:hover {
+  border-color: rgba(var(--hl), 0.9) !important;
+  background-color: rgba(var(--hl), 0.28) !important;
+}
+/* footer labels */
+.rcx-message-reactions__counter {
+  font-size: var(--footer-fs) !important;
+  font-weight: 600 !important;
+  line-height: 1 !important;
+  color: var(--text-soft) !important;
+}
+.rcx-message-reactions__reaction--mine .rcx-message-reactions__counter {
+  color: var(--text-mine) !important;
+}
+.rcx-message-metrics__item-label {          /* "8 replies, 9:55 AM" */
+  font-size: var(--footer-fs) !important;
+  font-weight: 600 !important;
+}
+
+/* Fields: rounder corners */
+footer .rcx-input-box__wrapper,
+.rcx-navbar label.rcx-input-box__wrapper,
+.rcx-vertical-bar label.rcx-input-box__wrapper,
+.rcx-vertical-bar .rcx-select {
+  border-radius: var(--field-radius) !important;   /* rcx-box--animated: radius changes animate in */
+}
+/* Composer: filled field, soft focus glow (not Fuselage's bright 2px ring) */
+footer .rcx-input-box__wrapper {
+  border-color: transparent !important;
+  background-color: var(--bg-field) !important;
+}
+.rcx-vertical-bar footer .rcx-input-box__wrapper {
+  background-color: var(--bg-field-drawer) !important;
+}
+footer .rcx-input-box__wrapper:focus-within {
+  border-color: transparent !important;
+  box-shadow: inset 0 0 0 1px rgba(var(--hl), 0.55) !important;
+}
+footer .rcx-input-box__wrapper .rcx-divider {     /* toolbar group separators (drawn with bg): spacing instead */
+  background-color: transparent !important;
+  border-color: transparent !important;
+  margin-inline: 4px !important;
+}
+/* "<user> is typing…" strip. Fuselage pins height: 1.25rem !important with
+   border-box (padding would squeeze the text). FIXED height, not auto, so the
+   composer doesn't jump when typing starts/stops. Text aligned with the placeholder. */
+.rc-message-box__activity-wrapper.rc-message-box__activity-wrapper {
+  height: 30px !important;
+  min-height: 30px !important;
+  padding-block: 6px 8px !important;
+  padding-inline-start: 12px !important;
+}
+
+
+/* ============================================================================
+   ::: Messages — type, spacing, rhythm, media
+   ========================================================================== */
 .rcx-message-header__name {
   font-size: 15px !important;
   font-weight: 700 !important;
 }
 .rcx-message-body {
-  font-size: var(--body-fs) !important;   /* byline name stays 15px/700 */
+  font-size: var(--body-fs) !important;
   line-height: 1.55 !important;
-  /* no max-width: an 85ch cap was tried and removed; chat is mostly short
-     lines, and mid-sentence wraps on wide screens read like a bug */
+  /* no max-width: an 85ch cap was tried and removed (one-liners wrapped) */
 }
-/* Message spacing. Every message gets EQUAL top/bottom padding, so its hover
-   highlight is balanced. The extra gap before a new author is a transparent
-   top border, excluded from the highlight via background-clip. Not a margin:
-   the message list is virtualized and measures item height, which counts
-   borders but not margins.
-     new author:  12px gap + 5px pad … 5px pad   (author→author ≈ 22px)
-     same author: 5px pad … 5px pad              (message→message 10px)
-   Fuselage default was 12/4 (new) and 4/4 (sequential), sides 20px. */
-.rcx-message {
-  padding-inline: 24px !important;
-}
+/* Equal top/bottom padding so the hover highlight is balanced. The gap before a
+   new author is a transparent top border excluded from the highlight
+   (background-clip) — a border, not a margin, because the message list is
+   virtualized and measures item height (borders count, margins don't).
+   author→author ≈ 22px, same author 10px. */
 .rcx-message.rcx-message {
-  padding-block: 5px !important;
+  padding: 5px 24px !important;
 }
 .rcx-message.rcx-message:not(.rcx-message--sequential) {
   border-top: 12px solid transparent !important;
   background-clip: padding-box !important;
 }
-/* Indent everything below the byline by --msg-indent (text, attachments, reactions, thread
-   footer) so the text isn't flush with the author name. Targets "every child
-   except the header" rather than named classes: image/file attachments render
-   as plain unclassed <div>s, not .rcx-message-block. */
-.rcx-message-container > :not(.rcx-message-header) {
-  margin-inline-start: var(--msg-indent) !important;
-}
-/* More air between the byline and the first line (was 2px + 2px) */
-.rcx-message-header {
+.rcx-message-header {                       /* byline → first line */
   margin-bottom: 6px !important;
 }
-/* Paragraph spacing. A blank line in a message renders as a <br> between two
-   block-level lines, which takes a full line-height (~23px). Chrome ignores
-   display/margin on <br>, so hide it and put a smaller gap on what follows. */
+/* Everything below the byline: indented, and bottom margins zeroed so each gap
+   below is set by the lower item's top margin (the container is flex: margins add).
+   Image/file attachments are plain unclassed <div>s — hence "any child but header". */
+.rcx-message-container > :not(.rcx-message-header) {
+  margin-inline-start: var(--msg-indent) !important;
+  margin-bottom: 0 !important;
+}
+/* paragraphs: a blank line is a <br> between block lines (a full line-height);
+   Chrome ignores display/margin on <br>, so hide it and gap what follows */
 .rcx-message-body > br {
   display: none !important;
 }
 .rcx-message-body > br + * {
   margin-top: var(--para-gap) !important;
 }
-/* Vertical rhythm below the text. The container is flex (margins add), so
-   bottom margins are zeroed and every gap is set by the lower item's top:
-     text → anything                         8px
-     anything → reactions / thread row       8px  (images, link previews, …)
-     reactions → thread row                  4px  (the footer reads as one unit)
-     attachment part → attachment part       6px  (rule further down)
-   Reactions/thread rows are identified by content (:has), not by class:
-   link previews are .rcx-message-block too, and images are plain <div>s. */
-.rcx-message-container > :not(.rcx-message-header) {
-  margin-bottom: 0 !important;
-}
+/* Rhythm:  text → anything 8 · anything → reactions/thread row 8 ·
+            reactions → thread row 4 · attachment part → attachment part 6.
+   Footer rows are found by content (:has): link previews are .rcx-message-block too. */
 .rcx-message-container > .rcx-message-body + * {
   margin-top: 8px !important;
 }
@@ -163,249 +389,88 @@ strong, b {
 .rcx-message-container > .rcx-message-block:has(.rcx-message-reactions__container, .rcx-message-metrics__content-wrapper) + .rcx-message-block:has(.rcx-message-reactions__container, .rcx-message-metrics__content-wrapper) {
   margin-top: 4px !important;
 }
-/* A pill's hard edge reads tighter than text (which carries line leading), so
-   a reactions/thread row that ends the message gets 4px extra below it:
-   last pill → message bottom ≈ 8px, matching the visual space under text. */
 .rcx-message-container > .rcx-message-block:has(.rcx-message-reactions__container, .rcx-message-metrics__content-wrapper):last-child {
-  margin-bottom: 4px !important;
+  margin-bottom: 4px !important;            /* pills have no line leading; ≈8px below the last pill */
 }
-/* Image attachments: rounded corners (same radius as text fields), and no
-   1px outline. The <picture> wrapper carries Fuselage's border + 2px radius;
-   it has only generated classes, so it's found via its img.gallery-item. */
+.rcx-message-container > :not(.rcx-message-header):not(.rcx-message-body):not(.rcx-message-block) + :not(.rcx-message-body):not(.rcx-message-block) {
+  margin-top: 6px !important;               /* "file.jpg (9 MB) ⌄" header → attachment */
+}
+/* Footer row boxes sized to their 24px pills (Fuselage: reactions row margin
+   -2px → 20px box; thread item margin 4px 0 → 32px box). */
+.rcx-message-reactions__container {
+  gap: 6px;
+}
+.rcx-message-reactions__container.rcx-message-reactions__container {
+  margin: 0 !important;
+}
+.rcx-message-metrics__content-item.rcx-message-metrics__content-item {
+  margin-block: 0 !important;
+}
+.rcx-message-metrics__content-wrapper {
+  align-items: center;
+}
+
+/* Media: images (<picture> around img.gallery-item, generated classes only) */
 .rcx-message-container picture:has(> img.gallery-item) {
   border: 0 !important;
   border-radius: var(--field-radius) !important;
   overflow: hidden !important;
 }
-/* Link previews: match image attachments. Card gets the shared radius and no
-   outline; its text area sits on the same faint tint as quote panels.
-   "Link Preview ⌄" header → card: 6px, like attachment headers. */
+/* Link previews: like images; text area on the panel tint */
 .rcx-message-generic-preview.rcx-message-generic-preview {
   border: 0 !important;
   border-radius: var(--field-radius) !important;
-  background-color: rgba(255, 255, 255, 0.035) !important;
+  background-color: var(--panel) !important;
   overflow: hidden !important;
 }
 .rcx-message-block > :first-child + .rcx-message-generic-preview {
-  margin-top: 6px !important;
-}
-/* Small buttons inside messages (attachment/preview ⌄ toggle, download,
-   quote jump-to): round, like every other control */
-.rcx-message-container .rcx-button--mini-square {
-  border-radius: 999px !important;
-}
-/* Attachment header ("file.jpg (9.49 MB) ⌄") → the attachment itself: 6px
-   (was 0). Both are plain <div>s, so this reads "an attachment part that
-   follows another attachment part" — also separates consecutive attachments. */
-.rcx-message-container > :not(.rcx-message-header):not(.rcx-message-body):not(.rcx-message-block) + :not(.rcx-message-body):not(.rcx-message-block) {
-  margin-top: 6px !important;
+  margin-top: 6px !important;               /* "Link Preview ⌄" → card */
 }
 
-/* ::: Surfaces: background contrast instead of 1px divider lines
-   Lightest → darkest: top bar/sidebar → channel header → channel → drawer. */
-.rcx-navbar {
-  border-bottom: 0 !important;
-}
-.rcx-navbar label.rcx-label {             /* search field: fill instead of outline */
-  border-color: transparent !important;
-  background-color: rgba(0, 0, 0, 0.2) !important;
-}
-.rcx-room-header {
-  background-color: var(--bg-header) !important;
-}
-.rcx-room-header > div {                  /* full-width content strip painted in the channel color;
-                                             without this it covers the header bg */
-  background-color: transparent !important;
-}
-.rcx-room-header hr.rcx-divider,
-header > hr.rcx-divider {                  /* line under the channel header */
-  display: none !important;
-}
-.rcx-sidebar--divider {                    /* line above the sidebar footer logo; keeps its spacing */
-  visibility: hidden !important;
-}
-.rcx-sidebar-footer {                      /* logo footer: same surface as the drawers */
-  background-color: var(--bg-drawer) !important;
-}
-/* Right-hand drawers (thread, room info, members, search…): darker than the channel.
-   Doubled class: Fuselage sets bg + border via `.rcx-css-xxxx { … !important }`
-   in a later stylesheet, which wins a single-class tie. */
-.rcx-vertical-bar.rcx-vertical-bar {
-  background-color: var(--bg-drawer) !important;
+
+/* ============================================================================
+   ::: Quotes & text attachments — tinted panel + left accent bar
+   Quoted *messages* get the strong bar + clipped corner; markdown "> text" a softer bar.
+   ========================================================================== */
+blockquote.rcx-attachment__details,          /* "Quote" message action */
+.rcx-message-attachment > div:first-child {  /* pinned-message notices, bot/webhook posts */
   border: 0 !important;
-}
-.rcx-vertical-bar > div:first-child {      /* drawer title bar */
-  background-color: var(--bg-drawer-header) !important;
-  border-bottom: 0 !important;
-}
-
-/* Fade-out dividers: 1px lines that are visible in the middle and fade to
-   nothing at both ends. Drawn as a 1px background-image layer pinned to an
-   edge (not a border or ::after), so no element needs position: relative —
-   which could disturb the drawer's overlay positioning on mobile. */
-.rcx-room-header,                          /* under the channel header */
-.rcx-vertical-bar > div:first-child {      /* under the drawer title bar */
-  background-image: linear-gradient(to right, transparent, var(--fade-line), transparent) !important;
-  background-size: 100% 1px !important;
-  background-position: bottom !important;
-  background-repeat: no-repeat !important;
-}
-.rcx-vertical-bar.rcx-vertical-bar {       /* drawer's left edge: vertical, fades top + bottom */
-  background-image: linear-gradient(to bottom, transparent, var(--fade-line), transparent) !important;
-  background-size: 1px 100% !important;
-  background-position: left !important;
-  background-repeat: no-repeat !important;
-}
-
-/* ::: Icon buttons: top bar, channel header, drawer header, message hover panel
-   Sized like the message footer + composer toolbar: 24px round, 16px icons.
-   (Selectors written out instead of :is() so each is plain to read/audit.)
-   The avatar ("User menu") button contains a <figure> and keeps its size. */
-.rcx-navbar .rcx-button--square:not(:has(figure)),
-.rcx-room-header .rcx-button--square:not(:has(figure)),
-.rcx-vertical-bar > div:first-child .rcx-button--square:not(:has(figure)),
-.rcx-message-toolbar .rcx-button--square:not(:has(figure)) {
-  width: var(--pill-h) !important;
-  min-width: var(--pill-h) !important;      /* Fuselage pins min-width: 28px */
-  height: var(--pill-h) !important;
-  min-height: var(--pill-h) !important;
-  border-radius: 999px !important;
-}
-.rcx-navbar .rcx-button--square .rcx-icon,
-.rcx-room-header .rcx-button--square .rcx-icon,
-.rcx-vertical-bar > div:first-child .rcx-button--square .rcx-icon,
-.rcx-message-toolbar .rcx-button--square .rcx-icon {
-  font-size: 16px !important;
-}
-/* toggled-on header buttons (e.g. the open thread/info panel): theme tint, not grey */
-.rcx-navbar .rcx-button--icon-pressed,
-.rcx-room-header .rcx-button--icon-pressed,
-.rcx-vertical-bar > div:first-child .rcx-button--icon-pressed {
-  background-color: rgba(var(--hl), 0.22) !important;
-  color: #ffffff !important;
-}
-
-/* Message hover panel (react / reply / quote / ...): floating capsule.
-   No border line; lifted off the message with a shadow instead. */
-.rcx-message-toolbar.rcx-message-toolbar {
-  border: 0 !important;
-  border-radius: 999px !important;
-  padding: 3px 5px !important;
-  background-color: var(--bg-field) !important;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35) !important;
-}
-.rcx-message-toolbar button:not(:has(.rcx-icon)) span {   /* quick-reaction emoji: 16px like reaction chips */
-  width: 16px !important;
-  height: 16px !important;
-  font-size: 14px !important;
-  background-size: contain !important;
-}
-
-/* ::: Field corners: composer, room search, drawer searches + filter dropdowns.
-   Note: some of these carry Fuselage's rcx-box--animated (a transition), so a
-   radius change animates in; measure after it settles. */
-footer .rcx-input-box__wrapper,
-.rcx-navbar label.rcx-input-box__wrapper,
-.rcx-vertical-bar label.rcx-input-box__wrapper,
-.rcx-vertical-bar .rcx-select {
-  border-radius: var(--field-radius) !important;
-}
-
-/* ::: Composer: filled field instead of an outlined box */
-footer .rcx-input-box__wrapper {
-  border-color: transparent !important;
-  background-color: var(--bg-field) !important;
-}
-.rcx-vertical-bar footer .rcx-input-box__wrapper {
-  background-color: var(--bg-field-drawer) !important;
-}
-footer .rcx-input-box__wrapper:focus-within {  /* focus: soft inset glow, not Fuselage's bright 2px ring */
-  border-color: transparent !important;
-  box-shadow: inset 0 0 0 1px rgba(var(--hl), 0.55) !important;
-}
-/* Formatting toolbar: sized to match the message footer (24px controls, 16px icons) */
-footer .rcx-input-box__wrapper .rcx-button--square {
-  width: var(--pill-h) !important;
-  height: var(--pill-h) !important;
-  min-height: var(--pill-h) !important;
-  border-radius: 999px !important;
-}
-footer .rcx-input-box__wrapper .rcx-button--square .rcx-icon {
-  font-size: 16px !important;
-}
-footer .rcx-input-box__wrapper .rcx-divider {  /* group separators: spacing, not lines (drawn via background-color) */
-  background-color: transparent !important;
-  border-color: transparent !important;
-  margin-inline: 4px !important;
-}
-
-/* "<user> is typing…" strip under the composer. Fuselage pins it at
-   height: 1.25rem !important with border-box, so padding alone would squeeze
-   the text; doubled class to win. A FIXED height (not auto) so the composer
-   doesn't jump 10px every time someone starts/stops typing. Text indented to
-   line up with the composer's placeholder. */
-.rc-message-box__activity-wrapper.rc-message-box__activity-wrapper {
-  height: 30px !important;
-  min-height: 30px !important;
-  padding-block: 6px 8px !important;
-  padding-inline-start: 12px !important;
-}
-
-/* ::: Quotes
-   Three kinds, styled as one family: tinted panel + left accent bar.
-   Quoted *messages* get the strong bar + clipped corner; markdown "> text"
-   gets a softer bar, so quoting a message vs quoting text stays distinguishable. */
-
-/* 1. Quote attachments (the "Quote" message action).
-   Box hugs its content instead of spanning the full column, so short quotes
-   don't leave an empty band on the right. */
-blockquote.rcx-attachment__details {
-  width: fit-content;
-  max-width: 100%;
-  border: 0 !important;
-  border-radius: 0 !important;
   padding: 8px 16px 10px 14px !important;
-  background-color: rgba(255, 255, 255, 0.035) !important;
   box-shadow: inset 3px 0 0 rgba(var(--hl), 0.75);
-  clip-path: polygon(0 0, calc(100% - var(--clip)) 0, 100% var(--clip), 100% 100%, 0 100%);
+  clip-path: var(--corner-shape);
 }
-blockquote.rcx-attachment__details > div:first-child {   /* avatar · name · time row */
+blockquote.rcx-attachment__details {
+  width: fit-content;                        /* hug short quotes */
+  max-width: 100%;
+  border-radius: 0 !important;
+  background-color: var(--panel) !important;
+}
+.rcx-message-attachment > div:first-child {
+  background-color: var(--panel);
+}
+blockquote.rcx-attachment__details > div:first-child {   /* avatar · name · time */
   gap: 6px;
   margin-block-end: 4px;
 }
-blockquote.rcx-attachment__details > div:first-child a:not(.rcx-button) {  /* timestamp link */
+blockquote.rcx-attachment__details > div:first-child a:not(.rcx-button) {
   text-decoration: none !important;
-  color: #8b929c !important;
+  color: var(--text-muted) !important;
 }
-blockquote.rcx-attachment__details .rcx-message-body {   /* quoted text: muted, one step under body text */
+blockquote.rcx-attachment__details .rcx-message-body {
   font-size: calc(var(--body-fs) - 1px) !important;
   line-height: 1.5 !important;
-  color: #aeb5bf !important;
+  color: var(--text-quote) !important;
 }
-
-/* 2. Text attachments (pinned-message notices, bot/webhook posts).
-   Fuselage caps these at 360px — sized for images — which crushes text into a
-   narrow column (long lines and hashes wrap mid-token). Images use a separate
-   container (PICTURE), so widening this doesn't enlarge them.
-   Doubled class = specificity (0,2,0): Fuselage sets the 360px cap as
-   `.rcx-css-xxxx { max-width: 360px !important }` (0,1,0) in a stylesheet that
-   loads AFTER this one, so a single class would lose the tie. */
+/* Text attachments: Fuselage caps them at 360px (sized for images), crushing text.
+   Doubled class beats its later `.rcx-css-xxxx { max-width: 360px !important }`. */
 .rcx-message-attachment.rcx-message-attachment {
   max-width: min(100%, 860px) !important;
   width: fit-content;
 }
-.rcx-message-attachment > div:first-child {
-  border: 0 !important;
-  padding: 8px 16px 10px 14px !important;
-  background-color: rgba(255, 255, 255, 0.035);
-  box-shadow: inset 3px 0 0 rgba(var(--hl), 0.75);
-  clip-path: polygon(0 0, calc(100% - var(--clip)) 0, 100% var(--clip), 100% 100%, 0 100%);
-}
 .rcx-message-attachment .rcx-attachment__content {
-  color: #aeb5bf;
+  color: var(--text-quote);
 }
-
-/* 3. Markdown blockquotes ("> text" in a message) */
+/* Markdown blockquotes ("> text") */
 .rcx-message-body blockquote {
   width: fit-content;
   max-width: 100%;
@@ -413,131 +478,23 @@ blockquote.rcx-attachment__details .rcx-message-body {   /* quoted text: muted, 
   border-radius: 0 !important;
   margin-block: 4px !important;
   padding: 6px 16px 6px 14px !important;
-  background-color: rgba(255, 255, 255, 0.035) !important;
+  background-color: var(--panel) !important;
   box-shadow: inset 3px 0 0 rgba(var(--hl), 0.45);
-  color: #aeb5bf;
+  color: var(--text-quote);
 }
-.rcx-message-body blockquote::before {   /* legacy 2px bar; replaced by the box-shadow */
+.rcx-message-body blockquote::before {       /* legacy 2px bar; replaced by the box-shadow */
   display: none !important;
 }
 .rcx-message-body blockquote:hover {
-  background-color: rgba(255, 255, 255, 0.05) !important;
+  background-color: var(--panel-hover) !important;
 }
 
-/* ::: Message footer: reactions + thread metrics
-   Reactions and "View thread" share one pill style; all footer labels use
-   --footer-fs so the row reads as one unit. */
 
-/* Reactions */
-.rcx-message-reactions__container {
-  gap: 6px;
-}
-/* Make each footer row's box exactly as tall as its 24px pills, so the gaps
-   set in "Vertical rhythm" are the gaps you see. Fuselage's defaults:
-   - reactions row: margin -2px (top/right/bottom) → box 20px, pills hang out
-     2px above and below (chips crowded whatever sat above them)
-   - thread row item: margin 4px top/bottom → box 32px, 4px of hidden space
-   The -2px left margin also put chips 2px left of the text. */
-.rcx-message-reactions__container.rcx-message-reactions__container {
-  margin: 0 !important;
-}
-.rcx-message-metrics__content-item.rcx-message-metrics__content-item {
-  margin-block: 0 !important;
-}
-.rcx-message-reactions__reaction {
-  display: inline-flex !important;
-  align-items: center;
-  gap: 5px;
-  box-sizing: border-box;   /* border inside the height → exactly --pill-h, same as View thread */
-  height: var(--pill-h) !important;
-  min-height: var(--pill-h) !important;
-  margin: 0 !important;
-  padding: 0 10px 0 8px !important;
-  border-radius: 999px !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  background-color: rgba(255, 255, 255, 0.04) !important;
-}
-.rcx-message-reactions__reaction:hover {
-  border-color: rgba(255, 255, 255, 0.22) !important;
-  background-color: rgba(255, 255, 255, 0.08) !important;
-}
-/* reactions you've added: theme-blue pill */
-.rcx-message-reactions__reaction--mine {
-  border-color: rgba(var(--hl), 0.6) !important;
-  background-color: rgba(var(--hl), 0.18) !important;
-}
-.rcx-message-reactions__reaction--mine:hover {
-  border-color: rgba(var(--hl), 0.9) !important;
-  background-color: rgba(var(--hl), 0.28) !important;
-}
-.rcx-message-reactions__counter {
-  font-size: var(--footer-fs) !important;
-  font-weight: 600 !important;
-  line-height: 1 !important;
-  color: #c1c7d0 !important;
-}
-.rcx-message-reactions__reaction--mine .rcx-message-reactions__counter {
-  color: #d6efff !important;
-}
-
-/* Thread metrics row: View thread · bell · participants · reply count */
-.rcx-message-metrics__content-wrapper {
-  align-items: center;
-}
-.rcx-message-metrics__item-label {   /* "8 replies, 9:55 AM" (was 10px) */
-  font-size: var(--footer-fs) !important;
-  font-weight: 600 !important;
-}
-/* "View thread": pill in the reaction family (square icon buttons excluded) */
-.rcx-message-metrics__item .rcx-button:not(.rcx-button--square) {
-  height: var(--pill-h) !important;
-  min-height: var(--pill-h) !important;
-  padding: 0 12px !important;
-  border-radius: 999px !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  background-color: rgba(255, 255, 255, 0.04) !important;
-  color: #c1c7d0 !important;
-  font-size: var(--footer-fs) !important;
-  font-weight: 600 !important;
-  line-height: 1 !important;
-}
-.rcx-message-metrics__item .rcx-button:not(.rcx-button--square):hover {
-  border-color: rgba(255, 255, 255, 0.22) !important;
-  background-color: rgba(255, 255, 255, 0.08) !important;
-}
-/* thread has unread replies (Fuselage "primary"): theme-blue pill instead of #095ad2 */
-.rcx-message-metrics__item .rcx-button--primary:not(.rcx-button--square) {
-  border-color: rgba(var(--hl), 0.8) !important;
-  background-color: rgba(var(--hl), 0.35) !important;
-  color: #ffffff !important;
-}
-.rcx-message-metrics__item .rcx-button--primary:not(.rcx-button--square):hover {
-  background-color: rgba(var(--hl), 0.5) !important;
-}
-/* Following (bell) toggle: capsule in the same family. State is carried by
-   the icon (bell / bell-off); the unread dot (follow-badge) sits on its edge. */
-.rcx-message-metrics__item .rcx-button--square {
-  box-sizing: border-box;
-  width: 34px !important;
-  height: var(--pill-h) !important;
-  min-height: var(--pill-h) !important;
-  border-radius: 999px !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  background-color: rgba(255, 255, 255, 0.04) !important;
-  color: #c1c7d0 !important;
-}
-.rcx-message-metrics__item .rcx-button--square:hover {
-  border-color: rgba(255, 255, 255, 0.22) !important;
-  background-color: rgba(255, 255, 255, 0.08) !important;
-}
-.rcx-message-metrics__item .rcx-button--square .rcx-icon {
-  font-size: 16px !important;   /* was 20px; sized to the 24px capsule */
-}
-
-/* ::: Sidebar footer logo: "duel.works" in Josefin Sans (matches https://duel.works/)
-   Font is embedded as a data: URI because the server CSP only allows
-   font-src 'self' data: (Google Fonts would be blocked).
-   Subset to just the glyphs ". d e k l o r s u w" (1.4 KB). Josefin Sans: SIL OFL 1.1. */
+/* ============================================================================
+   ::: Sidebar footer logo — "duel.works" in Josefin Sans (matches duel.works)
+   Embedded as a data: URI: the server CSP allows font-src 'self' data: only.
+   1.4 KB subset of ". d e k l o r s u w". Josefin Sans: SIL OFL 1.1.
+   ========================================================================== */
 @font-face {
   font-family: "DuelWorks Logo";
   font-style: normal;
@@ -545,9 +502,8 @@ blockquote.rcx-attachment__details .rcx-message-body {   /* quoted text: muted, 
   font-display: block;
   src: url(data:font/woff2;base64,d09GMgABAAAAAAWYAA8AAAAACngAAAU9AAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGhYbgkocKAZgP1NUQVRIAGwRCAqGFIRpCxoAATYCJAMwBCAFhVgHIBuuCMgEHng6rfcnaJtU0rqg0xQLIl3aVxzs+f/vVzpJQ3k8Sgd0lP7c/ybvdFvnVpM1L3VaFGGk0ILSLrAzWAte/usRgClCSEKwaOJeBDT4Eo2UlpFXhvnw5vEjCTfKJoZfRdUw/diRGIe0LVEiYRwajYbEWFh9FYNRoO7bJ//iB37HCMjf640CBSrUU9s0C4AypiSRUKBE9RSEjAhsld1VzKWVEiLxRsA01RhhggIjWB5qfBgMOppVFCzIUGMzqZ1DmXPJ3eRrC/lHJPlHVPKP0IkOxpN/IyiK/fHnWgNjQJKO01K6WDlASjJIVZw1119bNBDNJximnWRRTsIzN3dAQWFBOjfxZJL0vawmepRvizRPxJr9CU2VrlMRTxRIwclQJNq6DN/0pPaO8XNr6BzfPFzYIwmgmCQc0A2BghuUhJFYCdLVG0JK0BYGvlvJYq9rjSUKJDwJR89wRjGOCUzaGuT5rQzjjD1V/kZ+V94mb5TXy2vlNfLqcx7DqBUIWcaCJPfT7MgDboXPQMTCZipvLr1wepvEzGBn5aVk/pilpUWYg7lZuaG3V8zp69N29YS5KrRqjXA62l3R9eSGh9h8/bHG8PQms3ueNQOay5uidb7bX5feWNv1JKD8YLfWSKuurdZUlFVUFk/TqjWVDbfpYXZ3t8bQ21vJvfCLPjGn97nG8LS7ttx+xxt92rLz3d2gUZQbeoNTDz3Sdl04IuYcPu//+LWYc6f1pYKSDj/237/3ILMPnfPbd+kYs292q9XeCq207Vpcb/9tQitpKpw2Pu1ur/at1VbVVNVoq/0rK1LnXNF2XWL2RY3hsvjTpF9dfFxrSnpic3PMoKiqoPmRD+rU9e2b7tVGuhX4bW4cXTBjqcHH/9PG4CC/pN+xNMnUJ8a3JA0apGsfkFQyrNG6tGxShYN+4MnRYf5nPYJCfJI+DXTxaQxO+zTPiWJ1vVpnfc16xPL3U2qMq/5+NBuVjbpeXU/o68H9de39UtL0/RJ0gwcntLb1S0tpi+/fUpcc6JN0zy/gnldSYKBX0v0A/wfeSezZZjyp8Le7Ka5OytqPM4IC0wOv1W3nrlFoiftx/cYOF1unDFv7Ry8WetaGeBkn+USGpNr2ZVtbRfJNnIXdpeeVX/73xMsvPMOXNywSs9Lso+utrIKKfDq8MsJu1W8vN9InXzVNdqJ62xR7qzGOtdfOz3eZ7HLjfO1sn99qezwzsbU3t7U2t3c0tbY1dQRg1ocIQCLl9FpD/0aLgb8ZKxRfArzxuWMRwHuRU/+UT8o2qjLlDkCNBIAA6XtZDaou+eT/ZqoyBABgb2QqQkEqJkwyJtTEzxTz/z0kL8LEZIrFBkIkb4ql3dhwEG8x8Nmtz5QGjKhC9TBsyhrL+qs+oDQB4S08Y4XAURgrJMz5W6FgINcTSgK7KVQ4M12hxp8KuTmxeFvENDZ7aobRcA3CHlM0JDp8dLcvYRQjaGYk2YynmeF0oqMSPZ2008F4u3I8o+lPBLfZOHSMpZPRjKfN4SpFRoYT/kVs104EhWSQR8430qunjU5GUjr0dccRRgl62pnAcJoZSwV6xnb+rVGMxJNowokkkijO4Ulq8xwB/iwGUEAhBaQzYOIxUhOarDaVUYxmynYJFrBEoCky40kZHdxCPZdqLiJrRzEUPbpukWQm4AlYQZ0jEFvbOD7STmdtaAItCurOBiMmIaeE4yaK6BjGLSRio5iBZ2w8YXAcj3M4iNB/jn5wgiR0qxzLRPS00oYufE8KcMTGFubNR7wJ/6voxMXkrURjAAAAAA==) format("woff2");
 }
-/* the logo link would otherwise underline the ::after text */
 .rcx-sidebar-footer a[href="/home"] {
-  text-decoration: none !important;
+  text-decoration: none !important;          /* would underline the ::after text */
 }
 .rcx-sidebar-footer a[href="/home"] img {
   display: none !important;
@@ -560,5 +516,5 @@ blockquote.rcx-attachment__details .rcx-message-body {   /* quoted text: muted, 
   font-size: 26px;
   line-height: 24px;
   letter-spacing: 0.096em;
-  color: #ffffff;
+  color: var(--text-strong);
 }
