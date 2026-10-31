@@ -156,6 +156,12 @@ strong, b {
   border-radius: var(--field-radius) !important;
   overflow: hidden !important;
 }
+/* Attachment header ("file.jpg (9.49 MB) ⌄") → the attachment itself: 6px
+   (was 0). Both are plain <div>s, so this reads "an attachment part that
+   follows another attachment part" — also separates consecutive attachments. */
+.rcx-message-container > :not(.rcx-message-header):not(.rcx-message-body):not(.rcx-message-block) + :not(.rcx-message-body):not(.rcx-message-block) {
+  margin-top: 6px !important;
+}
 
 /* ::: Surfaces: background contrast instead of 1px divider lines
    Lightest → darkest: top bar/sidebar → channel header → channel → drawer. */
@@ -293,6 +299,18 @@ footer .rcx-input-box__wrapper .rcx-divider {  /* group separators: spacing, not
   background-color: transparent !important;
   border-color: transparent !important;
   margin-inline: 4px !important;
+}
+
+/* "<user> is typing…" strip under the composer. Fuselage pins it at
+   height: 1.25rem !important with border-box, so padding alone would squeeze
+   the text; doubled class to win. A FIXED height (not auto) so the composer
+   doesn't jump 10px every time someone starts/stops typing. Text indented to
+   line up with the composer's placeholder. */
+.rc-message-box__activity-wrapper.rc-message-box__activity-wrapper {
+  height: 30px !important;
+  min-height: 30px !important;
+  padding-block: 6px 8px !important;
+  padding-inline-start: 12px !important;
 }
 
 /* ::: Quotes
