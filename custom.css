@@ -115,8 +115,11 @@ blockquote.rcx-attachment__details .rcx-message-body {   /* quoted text: slightl
 /* 2. Text attachments (pinned-message notices, bot/webhook posts).
    Fuselage caps these at 360px — sized for images — which crushes text into a
    narrow column (long lines and hashes wrap mid-token). Images use a separate
-   container (PICTURE), so widening this doesn't enlarge them. */
-.rcx-message-attachment {
+   container (PICTURE), so widening this doesn't enlarge them.
+   Doubled class = specificity (0,2,0): Fuselage sets the 360px cap as
+   `.rcx-css-xxxx { max-width: 360px !important }` (0,1,0) in a stylesheet that
+   loads AFTER this one, so a single class would lose the tie. */
+.rcx-message-attachment.rcx-message-attachment {
   max-width: min(100%, 860px) !important;
   width: fit-content;
 }
