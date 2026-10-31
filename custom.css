@@ -14,6 +14,8 @@ strong, b {
   --hl: 29, 155, 209;  /* highlight color (RGB): sidebar, quote accent bars */
   --clip: 10px;        /* size of the clipped top-right corner motif */
   --gap: 2px;          /* sidebar: trimmed off top & bottom, so adjacent highlights get a 4px gap */
+  --footer-fs: 11px;   /* message footer labels: reaction counts, View thread, reply count */
+  --pill-h: 24px;      /* height of reaction + View thread pills */
 }
 
 /* Shared shape for unread / selected / hover / focus: clipped corner and gap.
@@ -166,6 +168,83 @@ blockquote.rcx-attachment__details .rcx-message-body {   /* quoted text: slightl
 }
 .rcx-message-body blockquote:hover {
   background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+/* ::: Message footer: reactions + thread metrics
+   Reactions and "View thread" share one pill style; all footer labels use
+   --footer-fs so the row reads as one unit. */
+
+/* Reactions */
+.rcx-message-reactions__container {
+  gap: 6px;
+}
+.rcx-message-reactions__reaction {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 5px;
+  min-height: var(--pill-h);
+  margin: 0 !important;
+  padding: 2px 10px 2px 8px !important;
+  border-radius: 999px !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  background-color: rgba(255, 255, 255, 0.04) !important;
+}
+.rcx-message-reactions__reaction:hover {
+  border-color: rgba(255, 255, 255, 0.22) !important;
+  background-color: rgba(255, 255, 255, 0.08) !important;
+}
+/* reactions you've added: theme-blue pill */
+.rcx-message-reactions__reaction--mine {
+  border-color: rgba(var(--hl), 0.6) !important;
+  background-color: rgba(var(--hl), 0.18) !important;
+}
+.rcx-message-reactions__reaction--mine:hover {
+  border-color: rgba(var(--hl), 0.9) !important;
+  background-color: rgba(var(--hl), 0.28) !important;
+}
+.rcx-message-reactions__counter {
+  font-size: var(--footer-fs) !important;
+  font-weight: 600 !important;
+  line-height: 1 !important;
+  color: #c1c7d0 !important;
+}
+.rcx-message-reactions__reaction--mine .rcx-message-reactions__counter {
+  color: #d6efff !important;
+}
+
+/* Thread metrics row: View thread · bell · participants · reply count */
+.rcx-message-metrics__content-wrapper {
+  align-items: center;
+}
+.rcx-message-metrics__item-label {   /* "8 replies, 9:55 AM" (was 10px) */
+  font-size: var(--footer-fs) !important;
+  font-weight: 600 !important;
+}
+/* "View thread": pill in the reaction family (square icon buttons excluded) */
+.rcx-message-metrics__item .rcx-button:not(.rcx-button--square) {
+  height: var(--pill-h) !important;
+  min-height: var(--pill-h) !important;
+  padding: 0 12px !important;
+  border-radius: 999px !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  background-color: rgba(255, 255, 255, 0.04) !important;
+  color: #c1c7d0 !important;
+  font-size: var(--footer-fs) !important;
+  font-weight: 600 !important;
+  line-height: 1 !important;
+}
+.rcx-message-metrics__item .rcx-button:not(.rcx-button--square):hover {
+  border-color: rgba(255, 255, 255, 0.22) !important;
+  background-color: rgba(255, 255, 255, 0.08) !important;
+}
+/* thread has unread replies (Fuselage "primary"): theme-blue pill instead of #095ad2 */
+.rcx-message-metrics__item .rcx-button--primary:not(.rcx-button--square) {
+  border-color: rgba(var(--hl), 0.8) !important;
+  background-color: rgba(var(--hl), 0.35) !important;
+  color: #ffffff !important;
+}
+.rcx-message-metrics__item .rcx-button--primary:not(.rcx-button--square):hover {
+  background-color: rgba(var(--hl), 0.5) !important;
 }
 
 /* ::: Sidebar footer logo: "duel.works" in Josefin Sans (matches https://duel.works/)
