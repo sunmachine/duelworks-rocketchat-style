@@ -154,8 +154,11 @@ URL-like.
 - `.rcx-message-container` is a flex column (margins add, don't collapse):
   `.rcx-message-header`, `.rcx-message-body`, then a mix of
   `.rcx-message-block` (reactions, thread metrics) and **plain unclassed
-  `<div>`s** (image/file attachment header + attachment). Target "any child
-  except header", not named classes.
+  `<div>`s** (image/file attachment header + attachment). Link previews are
+  *also* `.rcx-message-block`. Target "any child except header", and pick out
+  reactions/thread rows by content
+  (`:has(.rcx-message-reactions__container, .rcx-message-metrics__content-wrapper)`),
+  never by class alone.
 - A blank line in a message is a `<br>` between block-level `<div>`s and
   takes a full line-height. Chrome ignores `display`/`margin` on `<br>` —
   hide it and margin the following sibling.
