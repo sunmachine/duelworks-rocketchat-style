@@ -163,6 +163,12 @@ strong, b {
 .rcx-message-container > .rcx-message-block:has(.rcx-message-reactions__container, .rcx-message-metrics__content-wrapper) + .rcx-message-block:has(.rcx-message-reactions__container, .rcx-message-metrics__content-wrapper) {
   margin-top: 4px !important;
 }
+/* A pill's hard edge reads tighter than text (which carries line leading), so
+   a reactions/thread row that ends the message gets 4px extra below it:
+   last pill → message bottom ≈ 8px, matching the visual space under text. */
+.rcx-message-container > .rcx-message-block:has(.rcx-message-reactions__container, .rcx-message-metrics__content-wrapper):last-child {
+  margin-bottom: 4px !important;
+}
 /* Image attachments: rounded corners (same radius as text fields), and no
    1px outline. The <picture> wrapper carries Fuselage's border + 2px radius;
    it has only generated classes, so it's found via its img.gallery-item. */
@@ -426,10 +432,17 @@ blockquote.rcx-attachment__details .rcx-message-body {   /* quoted text: muted, 
 .rcx-message-reactions__container {
   gap: 6px;
 }
-/* Fuselage offsets the reaction row by -2px, so chips sat 2px left of the
-   message text and the View thread pill; zero it so the footer lines up */
+/* Make each footer row's box exactly as tall as its 24px pills, so the gaps
+   set in "Vertical rhythm" are the gaps you see. Fuselage's defaults:
+   - reactions row: margin -2px (top/right/bottom) → box 20px, pills hang out
+     2px above and below (chips crowded whatever sat above them)
+   - thread row item: margin 4px top/bottom → box 32px, 4px of hidden space
+   The -2px left margin also put chips 2px left of the text. */
 .rcx-message-reactions__container.rcx-message-reactions__container {
-  margin-inline-start: 0 !important;
+  margin: 0 !important;
+}
+.rcx-message-metrics__content-item.rcx-message-metrics__content-item {
+  margin-block: 0 !important;
 }
 .rcx-message-reactions__reaction {
   display: inline-flex !important;

@@ -165,6 +165,11 @@ URL-like.
 - Text attachments (pinned messages, bot posts) are `.rcx-message-attachment`
   (Fuselage caps them at 360px — sized for images). Images live in
   `picture:has(> img.gallery-item)`, a different container.
+- Footer row boxes don't match their pills by default: the reactions row has
+  `margin: -2px` (box 20px around 24px pills) and the thread row's
+  `.rcx-message-metrics__content-item` has `margin: 4px 0` (box 32px). Both
+  are zeroed in custom.css. Measure gaps between *visible* edges (pill/card
+  rects), not between block boxes.
 - Rocket.Chat doesn't render markdown blockquotes inside quoted/pinned
   attachments — literal `>` there is not a CSS problem.
 - The message hover toolbar (`.rcx-message-toolbar`) only exists in the DOM
