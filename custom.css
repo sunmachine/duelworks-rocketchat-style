@@ -24,6 +24,7 @@ strong, b {
   --bg-field: rgb(41, 46, 54);         /* composer, replacing its outline */
   --bg-field-drawer: rgb(34, 38, 45);  /* composer inside a drawer */
   --fade-line: rgba(255, 255, 255, 0.14); /* center color of the fade-out divider lines */
+  --field-radius: 8px; /* text fields + dropdowns (Fuselage default 4px) */
 }
 
 /* Shared shape for unread / selected / hover / focus: clipped corner and gap.
@@ -210,6 +211,16 @@ header > hr.rcx-divider {                  /* line under the channel header */
   height: 16px !important;
   font-size: 14px !important;
   background-size: contain !important;
+}
+
+/* ::: Field corners: composer, room search, drawer searches + filter dropdowns.
+   Note: some of these carry Fuselage's rcx-box--animated (a transition), so a
+   radius change animates in; measure after it settles. */
+footer .rcx-input-box__wrapper,
+.rcx-navbar label.rcx-input-box__wrapper,
+.rcx-vertical-bar label.rcx-input-box__wrapper,
+.rcx-vertical-bar .rcx-select {
+  border-radius: var(--field-radius) !important;
 }
 
 /* ::: Composer: filled field instead of an outlined box */
