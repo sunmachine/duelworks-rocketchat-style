@@ -16,20 +16,22 @@ strong, b {
   --gap: 2px;          /* sidebar: trimmed off top & bottom, so adjacent highlights get a 4px gap */
 }
 
-/* Shared shape for unread + hover: clipped corner and gap.
+/* Shared shape for unread / selected / hover / focus: clipped corner and gap.
    clip-path changes paint only, not row height (the sidebar is a
    virtualized list; margins would break its row math). */
-.rcx-sidebar-item[data-unread="true"],
-.rcx-sidebar-item[aria-current="page"],
-.rcx-sidebar-item:hover,
-.rcx-sidebar-item:focus-visible {
-  clip-path: polygon(
+.rcx-sidebar-item {
+  --row-shape: polygon(
     0 var(--gap),
     calc(100% - var(--clip)) var(--gap),
     100% calc(var(--gap) + var(--clip)),
     100% calc(100% - var(--gap)),
     0 calc(100% - var(--gap))
   );
+}
+.rcx-sidebar-item[data-unread="true"],
+.rcx-sidebar-item[aria-current="page"],
+.rcx-sidebar-item:focus-visible {
+  clip-path: var(--row-shape);
 }
 
 /* Unread: soft fade from transparent (left) to the highlight color (right) */
@@ -40,10 +42,23 @@ strong, b {
 
 /* Hover / keyboard focus: same shape, brighter gradient.
    Drop the default grey hover fill so it doesn't muddy the gradient. */
-.rcx-sidebar-item:hover,
 .rcx-sidebar-item:focus-visible {
   background-color: transparent !important;
   background-image: linear-gradient(to right, rgba(var(--hl), 0.10), rgba(var(--hl), 0.45)) !important;
+}
+/* Hover only on devices with a real pointer. On touchscreens :hover "sticks"
+   to the last-tapped row, which would leave a stray highlight behind. */
+@media (hover: hover) {
+  .rcx-sidebar-item:hover {
+    clip-path: var(--row-shape);
+    background-color: transparent !important;
+    background-image: linear-gradient(to right, rgba(var(--hl), 0.10), rgba(var(--hl), 0.45)) !important;
+  }
+}
+@media (hover: none) {
+  .rcx-sidebar-item:hover {
+    background-color: transparent !important;   /* suppress Fuselage's sticky grey too */
+  }
 }
 
 /* Selected (current room): strongest version, with the accent bar.
