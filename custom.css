@@ -178,13 +178,20 @@ blockquote.rcx-attachment__details .rcx-message-body {   /* quoted text: slightl
 .rcx-message-reactions__container {
   gap: 6px;
 }
+/* Fuselage offsets the reaction row by -2px, so chips sat 2px left of the
+   message text and the View thread pill; zero it so the footer lines up */
+.rcx-message-reactions__container.rcx-message-reactions__container {
+  margin-inline-start: 0 !important;
+}
 .rcx-message-reactions__reaction {
   display: inline-flex !important;
   align-items: center;
   gap: 5px;
-  min-height: var(--pill-h);
+  box-sizing: border-box;   /* border inside the height → exactly --pill-h, same as View thread */
+  height: var(--pill-h) !important;
+  min-height: var(--pill-h) !important;
   margin: 0 !important;
-  padding: 2px 10px 2px 8px !important;
+  padding: 0 10px 0 8px !important;
   border-radius: 999px !important;
   border: 1px solid rgba(255, 255, 255, 0.08) !important;
   background-color: rgba(255, 255, 255, 0.04) !important;
@@ -245,6 +252,25 @@ blockquote.rcx-attachment__details .rcx-message-body {   /* quoted text: slightl
 }
 .rcx-message-metrics__item .rcx-button--primary:not(.rcx-button--square):hover {
   background-color: rgba(var(--hl), 0.5) !important;
+}
+/* Following (bell) toggle: capsule in the same family. State is carried by
+   the icon (bell / bell-off); the unread dot (follow-badge) sits on its edge. */
+.rcx-message-metrics__item .rcx-button--square {
+  box-sizing: border-box;
+  width: 34px !important;
+  height: var(--pill-h) !important;
+  min-height: var(--pill-h) !important;
+  border-radius: 999px !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  background-color: rgba(255, 255, 255, 0.04) !important;
+  color: #c1c7d0 !important;
+}
+.rcx-message-metrics__item .rcx-button--square:hover {
+  border-color: rgba(255, 255, 255, 0.22) !important;
+  background-color: rgba(255, 255, 255, 0.08) !important;
+}
+.rcx-message-metrics__item .rcx-button--square .rcx-icon {
+  font-size: 16px !important;   /* was 20px; sized to the 24px capsule */
 }
 
 /* ::: Sidebar footer logo: "duel.works" in Josefin Sans (matches https://duel.works/)
