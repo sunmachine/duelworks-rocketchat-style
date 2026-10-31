@@ -48,6 +48,7 @@
   --corner-shape: polygon(0 0, calc(100% - var(--clip)) 0, 100% var(--clip), 100% 100%, 0 100%);
   --field-radius: 10.4px;                /* fields, dropdowns, images, link previews (Fuselage: 4px) */
   --gap: 2px;                            /* sidebar: trimmed off highlight top + bottom (4px between rows) */
+  --row-pad-compact: 6px;                /* sidebar rows when avatars are hidden (Fuselage: 3px → 28px rows) */
 
   /* type + message rhythm */
   --body-fs: 14px;                       /* message text, one step under the 15px/700 byline */
@@ -143,6 +144,13 @@ strong, b {
 }
 .rcx-sidebar-item[aria-current="page"] .rcx-sidebar-item__title {
   color: var(--text) !important;
+}
+/* Avatar-free display mode: Fuselage's 28px rows leave the highlight only
+   ~24px tall around 20px text. Taller rows (34px) give it room. Safe here:
+   the sidebar's rows are in normal flow and the list re-measures them
+   (verified: no overlaps at top or after scrolling to the bottom). */
+.rcx-sidebar-item:not(:has(.rcx-sidebar-item__avatar)) {
+  padding-block: var(--row-pad-compact) !important;
 }
 
 
