@@ -64,7 +64,7 @@
   --attach-gap: 6px;                     /* attachment header → attachment; link-preview header → card */
 
   /* focus */
-  --focus-ring: inset 0 0 0 1px rgba(var(--hl), 0.9);
+  --focus-color: rgba(var(--hl), 0.9);   /* field focus rim (keep ≥3:1 vs the field fill) */
 }
 
 
@@ -337,7 +337,7 @@ header > hr.rcx-divider {                  /* line under the channel header */
   font-weight: 600 !important;
 }
 
-/* Fields — app-wide: filled, no outline, rounder; accent ring on focus
+/* Fields — app-wide: filled, no outline, rounder; accent rim on focus
    (replaces Fuselage's 2px ring). A field is either a bare decorated
    .rcx-input-box (forms) or a .rcx-input-box__wrapper holding an undecorated
    one (composer, searches); dropdowns are .rcx-select. Doubled classes:
@@ -351,10 +351,16 @@ header > hr.rcx-divider {                  /* line under the channel header */
   border-color: transparent !important;
   background-color: var(--bg-field) !important;
 }
+/* Focus/error rims are OUTLINES (offset -1px, following border-radius), not
+   inset box-shadows: an inset shadow paints beneath the element's children,
+   so the composer's toolbar strip covered the bottom of the rim. Outlines
+   paint on top, wrapping the whole box. Fuselage's own focus shadow is removed. */
 .rcx-input-box.rcx-input-box:not(.rcx-input-box--undecorated):focus,
 .rcx-input-box__wrapper.rcx-input-box__wrapper:focus-within,
 .rcx-select.rcx-select:focus-within {
-  box-shadow: var(--focus-ring) !important;
+  outline: 1px solid var(--focus-color) !important;
+  outline-offset: -1px !important;
+  box-shadow: none !important;
 }
 /* disabled: a dimmer fill (not opacity — Fuselage already dims the text,
    and multiplying both made disabled values unreadable) */
@@ -369,7 +375,9 @@ header > hr.rcx-divider {                  /* line under the channel header */
 .rcx-input-box.rcx-input-box[aria-invalid="true"]:focus,
 .rcx-input-box__wrapper.rcx-input-box__wrapper:has([aria-invalid="true"]),
 .rcx-input-box__wrapper.rcx-input-box__wrapper:has([aria-invalid="true"]):focus-within {
-  box-shadow: inset 0 0 0 1px var(--rcx-color-stroke-error, rgb(236, 13, 42)) !important;
+  outline: 1px solid var(--rcx-color-stroke-error, rgb(236, 13, 42)) !important;
+  outline-offset: -1px !important;
+  box-shadow: none !important;
 }
 footer .rcx-input-box__wrapper .rcx-divider {     /* toolbar group separators (drawn with bg): spacing instead */
   background-color: transparent !important;

@@ -218,8 +218,10 @@ glyph subset fetched with Google Fonts' `&text=` parameter).
   (intended — same in channel and drawers). Footer labels `--footer-fs`
   (11px/600). Primary actions use the accent tint (0.35 fill, 0.8 edge),
   not Fuselage's `#095ad2`. The avatar button (`:has(figure)`) is exempt.
-- **Fields (app-wide):** filled, no outline, `--field-radius`; focus =
-  `--focus-ring` (keep it ≥3:1 — it's the only focus cue on every form);
+- **Fields (app-wide):** filled, no outline, `--field-radius`; focus = a 1px
+  `outline` rim in `--focus-color`, offset -1px (keep it ≥3:1 — it's the only
+  focus cue on every form). Use outlines, not inset box-shadows, for rims:
+  children paint over an inset shadow (the composer's toolbar hid it);
   invalid = `--rcx-color-stroke-error` edge, kept while focused; disabled =
   `--bg-field-disabled` fill (never opacity — Fuselage already dims the text).
 - **Clipped top-right corner** (`--clip`) is the motif for highlighted
