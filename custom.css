@@ -66,8 +66,12 @@ strong, b {
 /* ============================================================================
    ::: Sidebar — unread rooms pop, read rooms recede
    Rows carry data-unread="true|false" and aria-current="page" (stabler than
-   classes). The list is virtualized, so row shape/gaps use clip-path (paint
-   only) — never margins or padding.
+   classes). The highlight is painted on a ::before layer behind the row's
+   content, NOT on the row: clip-path also clips hit-testing, so clipping the
+   row itself on hover made its top/bottom 2px stop being "hovered", which
+   un-hovered it, which removed the clip… a per-frame flicker at row edges.
+   The row's hit area now never changes. (position: relative doesn't alter
+   size, so the virtualized list's row math is unaffected.)
    ========================================================================== */
 .rcx-sidebar-item {
   --row-shape: polygon(
@@ -77,27 +81,35 @@ strong, b {
     100% calc(100% - var(--gap)),
     0 calc(100% - var(--gap))
   );
+  --row-fill: none;                         /* set per state below */
+  --row-bar: none;
+  position: relative;
+  isolation: isolate;                       /* ::before at z-index -1 stays inside the row */
 }
-.rcx-sidebar-item[data-unread="true"],
-.rcx-sidebar-item[aria-current="page"],
-.rcx-sidebar-item:focus-visible {
+.rcx-sidebar-item::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
   clip-path: var(--row-shape);
+  background-image: var(--row-fill);
+  box-shadow: var(--row-bar);
 }
 /* unread: fade from transparent (left) to accent (right) + accent bar */
 .rcx-sidebar-item[data-unread="true"] {
-  background-image: linear-gradient(to right, rgba(var(--hl), 0), rgba(var(--hl), 0.22)) !important;
-  box-shadow: inset 3px 0 0 rgb(var(--hl));
+  --row-fill: linear-gradient(to right, rgba(var(--hl), 0), rgba(var(--hl), 0.22));
+  --row-bar: inset 3px 0 0 rgb(var(--hl));
 }
-/* hover / keyboard focus: same shape, brighter; drop Fuselage's grey fill */
+/* hover / keyboard focus: brighter; drop Fuselage's grey fill */
 .rcx-sidebar-item:focus-visible {
+  --row-fill: linear-gradient(to right, rgba(var(--hl), 0.10), rgba(var(--hl), 0.45));
   background-color: transparent !important;
-  background-image: linear-gradient(to right, rgba(var(--hl), 0.10), rgba(var(--hl), 0.45)) !important;
 }
 @media (hover: hover) {   /* real pointers only: on touch, :hover sticks to the last tap */
   .rcx-sidebar-item:hover {
-    clip-path: var(--row-shape);
+    --row-fill: linear-gradient(to right, rgba(var(--hl), 0.10), rgba(var(--hl), 0.45));
     background-color: transparent !important;
-    background-image: linear-gradient(to right, rgba(var(--hl), 0.10), rgba(var(--hl), 0.45)) !important;
   }
 }
 @media (hover: none) {
@@ -107,9 +119,9 @@ strong, b {
 }
 /* selected (current room): strongest. Must come AFTER hover so it wins while hovered. */
 .rcx-sidebar-item[aria-current="page"] {
+  --row-fill: linear-gradient(to right, rgba(var(--hl), 0.20), rgba(var(--hl), 0.60));
+  --row-bar: inset 3px 0 0 rgb(var(--hl));
   background-color: transparent !important;
-  background-image: linear-gradient(to right, rgba(var(--hl), 0.20), rgba(var(--hl), 0.60)) !important;
-  box-shadow: inset 3px 0 0 rgb(var(--hl));
 }
 .rcx-sidebar-item[data-unread="true"] .rcx-sidebar-item__title {
   font-weight: 700 !important;
@@ -185,6 +197,16 @@ header > hr.rcx-divider {                  /* line under the channel header */
    sets the same property via a later `.rcx-css-xxxx {…!important}`. */
 .rcx-button.rcx-button {                    /* text buttons → pills, square buttons → circles */
   border-radius: 999px !important;
+}
+/* Primary actions (Create, Save, Send…): theme blue — the same tinted fill +
+   accent edge as an unread "View thread" — instead of Fuselage's #095ad2 */
+.rcx-button--primary.rcx-button--primary {
+  border-color: rgba(var(--hl), 0.8) !important;
+  background-color: rgba(var(--hl), 0.35) !important;
+  color: var(--text-strong) !important;
+}
+.rcx-button--primary.rcx-button--primary:hover {
+  background-color: rgba(var(--hl), 0.5) !important;
 }
 /* Small icon buttons (Fuselage 28px, 20px icons) → 24px, 16px icons: top bar,
    headers, drawers, hover toolbar, composer toolbar, sidebar, forms.
