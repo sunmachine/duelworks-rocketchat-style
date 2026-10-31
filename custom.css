@@ -115,11 +115,9 @@ strong, b {
 }
 .rcx-room-header {
   background-color: var(--bg-header) !important;
-  /* soft --hl tint starting at the left edge, fading out to the right (~1/2 sidebar strength) */
-  background-image: linear-gradient(to right, rgba(var(--hl), 0.10), rgba(var(--hl), 0)) !important;
 }
 .rcx-room-header > div {                  /* full-width content strip painted in the channel color;
-                                             without this it covers the header bg + gradient */
+                                             without this it covers the header bg */
   background-color: transparent !important;
 }
 .rcx-room-header hr.rcx-divider,
@@ -138,7 +136,6 @@ header > hr.rcx-divider {                  /* line under the channel header */
 }
 .rcx-vertical-bar > div:first-child {      /* drawer title bar */
   background-color: var(--bg-drawer-header) !important;
-  background-image: linear-gradient(to right, rgba(var(--hl), 0.08), rgba(var(--hl), 0)) !important;
   border-bottom: 0 !important;
 }
 
