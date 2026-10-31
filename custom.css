@@ -27,6 +27,7 @@ strong, b {
   --field-radius: 10.4px; /* text fields + dropdowns (Fuselage default 4px; 8px +30%) */
   --msg-indent: 6px;   /* message text/blocks indent past the byline */
   --para-gap: 8px;     /* gap for a blank line between paragraphs (was a full ~23px line) */
+  --body-fs: 14px;     /* message text; one step under the 15px bold byline so they don't blur together */
 }
 
 /* Shared shape for unread / selected / hover / focus: clipped corner and gap.
@@ -99,7 +100,7 @@ strong, b {
   font-weight: 700 !important;
 }
 .rcx-message-body {
-  font-size: 15px !important;
+  font-size: var(--body-fs) !important;   /* byline name stays 15px/700 */
   line-height: 1.55 !important;
   max-width: 85ch; /* keep lines readable on wide monitors */
 }
@@ -339,8 +340,8 @@ blockquote.rcx-attachment__details > div:first-child a:not(.rcx-button) {  /* ti
   text-decoration: none !important;
   color: #8b929c !important;
 }
-blockquote.rcx-attachment__details .rcx-message-body {   /* quoted text: slightly muted */
-  font-size: 14px !important;
+blockquote.rcx-attachment__details .rcx-message-body {   /* quoted text: muted, one step under body text */
+  font-size: calc(var(--body-fs) - 1px) !important;
   line-height: 1.5 !important;
   color: #aeb5bf !important;
 }
