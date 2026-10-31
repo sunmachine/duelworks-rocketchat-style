@@ -78,3 +78,32 @@ strong, b {
 .rcx-message:not(.rcx-message--sequential) {
   padding-block-start: 12px !important;
 }
+
+/* ::: Sidebar footer logo: "duel.works" in Josefin Sans (matches https://duel.works/)
+   Font is embedded as a data: URI because the server CSP only allows
+   font-src 'self' data: (Google Fonts would be blocked).
+   Subset to just the glyphs ". d e k l o r s u w" (1.4 KB). Josefin Sans: SIL OFL 1.1. */
+@font-face {
+  font-family: "DuelWorks Logo";
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url(data:font/woff2;base64,d09GMgABAAAAAAWYAA8AAAAACngAAAU9AAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGhYbgkocKAZgP1NUQVRIAGwRCAqGFIRpCxoAATYCJAMwBCAFhVgHIBuuCMgEHng6rfcnaJtU0rqg0xQLIl3aVxzs+f/vVzpJQ3k8Sgd0lP7c/ybvdFvnVpM1L3VaFGGk0ILSLrAzWAte/usRgClCSEKwaOJeBDT4Eo2UlpFXhvnw5vEjCTfKJoZfRdUw/diRGIe0LVEiYRwajYbEWFh9FYNRoO7bJ//iB37HCMjf640CBSrUU9s0C4AypiSRUKBE9RSEjAhsld1VzKWVEiLxRsA01RhhggIjWB5qfBgMOppVFCzIUGMzqZ1DmXPJ3eRrC/lHJPlHVPKP0IkOxpN/IyiK/fHnWgNjQJKO01K6WDlASjJIVZw1119bNBDNJximnWRRTsIzN3dAQWFBOjfxZJL0vawmepRvizRPxJr9CU2VrlMRTxRIwclQJNq6DN/0pPaO8XNr6BzfPFzYIwmgmCQc0A2BghuUhJFYCdLVG0JK0BYGvlvJYq9rjSUKJDwJR89wRjGOCUzaGuT5rQzjjD1V/kZ+V94mb5TXy2vlNfLqcx7DqBUIWcaCJPfT7MgDboXPQMTCZipvLr1wepvEzGBn5aVk/pilpUWYg7lZuaG3V8zp69N29YS5KrRqjXA62l3R9eSGh9h8/bHG8PQms3ueNQOay5uidb7bX5feWNv1JKD8YLfWSKuurdZUlFVUFk/TqjWVDbfpYXZ3t8bQ21vJvfCLPjGn97nG8LS7ttx+xxt92rLz3d2gUZQbeoNTDz3Sdl04IuYcPu//+LWYc6f1pYKSDj/237/3ILMPnfPbd+kYs292q9XeCq207Vpcb/9tQitpKpw2Pu1ur/at1VbVVNVoq/0rK1LnXNF2XWL2RY3hsvjTpF9dfFxrSnpic3PMoKiqoPmRD+rU9e2b7tVGuhX4bW4cXTBjqcHH/9PG4CC/pN+xNMnUJ8a3JA0apGsfkFQyrNG6tGxShYN+4MnRYf5nPYJCfJI+DXTxaQxO+zTPiWJ1vVpnfc16xPL3U2qMq/5+NBuVjbpeXU/o68H9de39UtL0/RJ0gwcntLb1S0tpi+/fUpcc6JN0zy/gnldSYKBX0v0A/wfeSezZZjyp8Le7Ka5OytqPM4IC0wOv1W3nrlFoiftx/cYOF1unDFv7Ry8WetaGeBkn+USGpNr2ZVtbRfJNnIXdpeeVX/73xMsvPMOXNywSs9Lso+utrIKKfDq8MsJu1W8vN9InXzVNdqJ62xR7qzGOtdfOz3eZ7HLjfO1sn99qezwzsbU3t7U2t3c0tbY1dQRg1ocIQCLl9FpD/0aLgb8ZKxRfArzxuWMRwHuRU/+UT8o2qjLlDkCNBIAA6XtZDaou+eT/ZqoyBABgb2QqQkEqJkwyJtTEzxTz/z0kL8LEZIrFBkIkb4ql3dhwEG8x8Nmtz5QGjKhC9TBsyhrL+qs+oDQB4S08Y4XAURgrJMz5W6FgINcTSgK7KVQ4M12hxp8KuTmxeFvENDZ7aobRcA3CHlM0JDp8dLcvYRQjaGYk2YynmeF0oqMSPZ2008F4u3I8o+lPBLfZOHSMpZPRjKfN4SpFRoYT/kVs104EhWSQR8430qunjU5GUjr0dccRRgl62pnAcJoZSwV6xnb+rVGMxJNowokkkijO4Ulq8xwB/iwGUEAhBaQzYOIxUhOarDaVUYxmynYJFrBEoCky40kZHdxCPZdqLiJrRzEUPbpukWQm4AlYQZ0jEFvbOD7STmdtaAItCurOBiMmIaeE4yaK6BjGLSRio5iBZ2w8YXAcj3M4iNB/jn5wgiR0qxzLRPS00oYufE8KcMTGFubNR7wJ/6voxMXkrURjAAAAAA==) format("woff2");
+}
+/* the logo link would otherwise underline the ::after text */
+.rcx-sidebar-footer a[href="/home"] {
+  text-decoration: none !important;
+}
+.rcx-sidebar-footer a[href="/home"] img {
+  display: none !important;
+}
+.rcx-sidebar-footer a[href="/home"]::after {
+  content: "duel.works";
+  display: block;
+  font-family: "DuelWorks Logo", sans-serif;
+  font-weight: 400;
+  font-size: 26px;
+  line-height: 24px;
+  letter-spacing: 0.096em;
+  color: #ffffff;
+}
