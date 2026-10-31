@@ -105,16 +105,23 @@ strong, b {
   /* no max-width: an 85ch cap was tried and removed; chat is mostly short
      lines, and mid-sentence wraps on wide screens read like a bug */
 }
-/* Message spacing: a little more room around every message.
-   Fuselage default: new group 12px 20px 4px, sequential 4px 20px. */
+/* Message spacing. Every message gets EQUAL top/bottom padding, so its hover
+   highlight is balanced. The extra gap before a new author is a transparent
+   top border, excluded from the highlight via background-clip. Not a margin:
+   the message list is virtualized and measures item height, which counts
+   borders but not margins.
+     new author:  12px gap + 5px pad … 5px pad   (author→author ≈ 22px)
+     same author: 5px pad … 5px pad              (message→message 10px)
+   Fuselage default was 12/4 (new) and 4/4 (sequential), sides 20px. */
 .rcx-message {
   padding-inline: 24px !important;
 }
-.rcx-message:not(.rcx-message--sequential) {   /* first message from an author */
-  padding-block: 16px 6px !important;
-}
-.rcx-message--sequential {                     /* follow-ups from the same author */
+.rcx-message.rcx-message {
   padding-block: 5px !important;
+}
+.rcx-message.rcx-message:not(.rcx-message--sequential) {
+  border-top: 12px solid transparent !important;
+  background-clip: padding-box !important;
 }
 /* Indent everything below the byline (text, attachments, reactions, thread
    footer) so the text isn't flush with the author name. Targets "every child
@@ -163,6 +170,23 @@ strong, b {
   border: 0 !important;
   border-radius: var(--field-radius) !important;
   overflow: hidden !important;
+}
+/* Link previews: match image attachments. Card gets the shared radius and no
+   outline; its text area sits on the same faint tint as quote panels.
+   "Link Preview ⌄" header → card: 6px, like attachment headers. */
+.rcx-message-generic-preview.rcx-message-generic-preview {
+  border: 0 !important;
+  border-radius: var(--field-radius) !important;
+  background-color: rgba(255, 255, 255, 0.035) !important;
+  overflow: hidden !important;
+}
+.rcx-message-block > :first-child + .rcx-message-generic-preview {
+  margin-top: 6px !important;
+}
+/* Small buttons inside messages (attachment/preview ⌄ toggle, download,
+   quote jump-to): round, like every other control */
+.rcx-message-container .rcx-button--mini-square {
+  border-radius: 999px !important;
 }
 /* Attachment header ("file.jpg (9.49 MB) ⌄") → the attachment itself: 6px
    (was 0). Both are plain <div>s, so this reads "an attachment part that
