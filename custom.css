@@ -26,6 +26,7 @@
   --panel-hover: rgba(255, 255, 255, 0.05);
   --fade-line: rgba(255, 255, 255, 0.14);/* center color of the fade-out hairlines */
   --shadow-float: 0 4px 14px rgba(0, 0, 0, 0.35);
+  --shadow-badge: 0 1px 4px rgba(0, 0, 0, 0.55);  /* same drop shadow, scaled for small badges */
 
   /* text */
   --text-strong: #ffffff;
@@ -144,6 +145,12 @@ strong, b {
 }
 .rcx-sidebar-item[aria-current="page"] .rcx-sidebar-item__title {
   color: var(--text) !important;
+}
+/* Unread count badge: Fuselage's blue sits too close to the row highlight's
+   blue; a drop shadow (the hover toolbar's, scaled down so the row's
+   overflow:hidden doesn't cut it) lifts it off instead of recoloring it. */
+.rcx-sidebar-item__badge.rcx-sidebar-item__badge {
+  box-shadow: var(--shadow-badge) !important;
 }
 /* Avatar-free display mode: Fuselage's 28px rows leave the highlight only
    ~24px tall around 20px text. Taller rows (34px) give it room. Safe here:
