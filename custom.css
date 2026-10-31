@@ -118,6 +118,10 @@ strong, b {
   /* soft --hl tint starting at the left edge, fading out to the right (~1/2 sidebar strength) */
   background-image: linear-gradient(to right, rgba(var(--hl), 0.10), rgba(var(--hl), 0)) !important;
 }
+.rcx-room-header > div {                  /* full-width content strip painted in the channel color;
+                                             without this it covers the header bg + gradient */
+  background-color: transparent !important;
+}
 .rcx-room-header hr.rcx-divider,
 header > hr.rcx-divider {                  /* line under the channel header */
   display: none !important;
