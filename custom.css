@@ -25,7 +25,7 @@ strong, b {
   --bg-field-drawer: rgb(34, 38, 45);  /* composer inside a drawer */
   --fade-line: rgba(255, 255, 255, 0.14); /* center color of the fade-out divider lines */
   --field-radius: 10.4px; /* text fields + dropdowns (Fuselage default 4px; 8px +30%) */
-  --msg-indent: 6px;   /* message text/blocks indent past the byline */
+  --msg-indent: 12px;  /* message text/blocks indent past the byline (was 6px) */
   --para-gap: 8px;     /* gap for a blank line between paragraphs (was a full ~23px line) */
   --body-fs: 14px;     /* message text; one step under the 15px bold byline so they don't blur together */
 }
@@ -123,7 +123,7 @@ strong, b {
   border-top: 12px solid transparent !important;
   background-clip: padding-box !important;
 }
-/* Indent everything below the byline (text, attachments, reactions, thread
+/* Indent everything below the byline by --msg-indent (text, attachments, reactions, thread
    footer) so the text isn't flush with the author name. Targets "every child
    except the header" rather than named classes: image/file attachments render
    as plain unclassed <div>s, not .rcx-message-block. */
