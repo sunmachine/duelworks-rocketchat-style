@@ -115,10 +115,10 @@ strong, b {
   padding-block: 5px !important;
 }
 /* Indent everything below the byline (text, attachments, reactions, thread
-   footer) so the text isn't flush with the author name. Moving the blocks too
-   keeps reactions / View thread aligned with the text. */
-.rcx-message-container > .rcx-message-body,
-.rcx-message-container > .rcx-message-block {
+   footer) so the text isn't flush with the author name. Targets "every child
+   except the header" rather than named classes: image/file attachments render
+   as plain unclassed <div>s, not .rcx-message-block. */
+.rcx-message-container > :not(.rcx-message-header) {
   margin-inline-start: var(--msg-indent) !important;
 }
 /* More air between the byline and the first line (was 2px + 2px) */
@@ -134,11 +134,19 @@ strong, b {
 .rcx-message-body > br + * {
   margin-top: var(--para-gap) !important;
 }
-/* Gap between the message text and the first block under it (reaction chips,
-   thread row, attachments): 8px, was 4px. Reactions → thread row stays 4px so
-   the footer still reads as one unit. */
-.rcx-message-container > .rcx-message-body + .rcx-message-block {
-  margin-top: 6px !important;
+/* Vertical rhythm below the text (the container is flex, so margins add):
+     text → anything            8px  (was 4px)
+     attachment → reactions/thread row   8px  (was 2px: chips sat on the image)
+     reactions → thread row     4px  (unchanged; the footer reads as one unit)
+   Attachments are plain <div>s, hence :not(body):not(block) for "attachment". */
+.rcx-message-container > .rcx-message-body {
+  margin-bottom: 0 !important;
+}
+.rcx-message-container > .rcx-message-body + * {
+  margin-top: 8px !important;
+}
+.rcx-message-container > :not(.rcx-message-body):not(.rcx-message-block) + .rcx-message-block {
+  margin-top: 8px !important;
 }
 
 /* ::: Surfaces: background contrast instead of 1px divider lines
