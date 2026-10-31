@@ -16,6 +16,13 @@ strong, b {
   --gap: 2px;          /* sidebar: trimmed off top & bottom, so adjacent highlights get a 4px gap */
   --footer-fs: 11px;   /* message footer labels: reaction counts, View thread, reply count */
   --pill-h: 24px;      /* height of reaction + View thread pills */
+
+  /* Surfaces: regions are separated by background steps, not border lines */
+  --bg-header: rgb(38, 42, 50);        /* channel header (top bar + sidebar stay Fuselage's rgb(47,52,61)) */
+  --bg-drawer: rgb(24, 27, 32);        /* right-hand drawers: thread, room info, members… (channel is rgb(31,35,41)) */
+  --bg-drawer-header: rgb(30, 34, 40); /* drawer title bar */
+  --bg-field: rgb(41, 46, 54);         /* composer, replacing its outline */
+  --bg-field-drawer: rgb(34, 38, 45);  /* composer inside a drawer */
 }
 
 /* Shared shape for unread / selected / hover / focus: clipped corner and gap.
@@ -95,6 +102,65 @@ strong, b {
 /* breathing room between different authors / message groups */
 .rcx-message:not(.rcx-message--sequential) {
   padding-block-start: 12px !important;
+}
+
+/* ::: Surfaces: background contrast instead of 1px divider lines
+   Lightest → darkest: top bar/sidebar → channel header → channel → drawer. */
+.rcx-navbar {
+  border-bottom: 0 !important;
+}
+.rcx-navbar label.rcx-label {             /* search field: fill instead of outline */
+  border-color: transparent !important;
+  background-color: rgba(0, 0, 0, 0.2) !important;
+}
+.rcx-room-header {
+  background-color: var(--bg-header) !important;
+}
+.rcx-room-header hr.rcx-divider,
+header > hr.rcx-divider {                  /* line under the channel header */
+  display: none !important;
+}
+.rcx-sidebar--divider {                    /* line above the sidebar footer logo; keeps its spacing */
+  visibility: hidden !important;
+}
+/* Right-hand drawers (thread, room info, members, search…): darker than the channel.
+   Doubled class: Fuselage sets bg + border via `.rcx-css-xxxx { … !important }`
+   in a later stylesheet, which wins a single-class tie. */
+.rcx-vertical-bar.rcx-vertical-bar {
+  background-color: var(--bg-drawer) !important;
+  border: 0 !important;
+}
+.rcx-vertical-bar > div:first-child {      /* drawer title bar */
+  background-color: var(--bg-drawer-header) !important;
+  border-bottom: 0 !important;
+}
+
+/* ::: Composer: filled field instead of an outlined box */
+footer .rcx-input-box__wrapper {
+  border-color: transparent !important;
+  background-color: var(--bg-field) !important;
+}
+.rcx-vertical-bar footer .rcx-input-box__wrapper {
+  background-color: var(--bg-field-drawer) !important;
+}
+footer .rcx-input-box__wrapper:focus-within {  /* focus: soft inset glow, not Fuselage's bright 2px ring */
+  border-color: transparent !important;
+  box-shadow: inset 0 0 0 1px rgba(var(--hl), 0.55) !important;
+}
+/* Formatting toolbar: sized to match the message footer (24px controls, 16px icons) */
+footer .rcx-input-box__wrapper .rcx-button--square {
+  width: var(--pill-h) !important;
+  height: var(--pill-h) !important;
+  min-height: var(--pill-h) !important;
+  border-radius: 999px !important;
+}
+footer .rcx-input-box__wrapper .rcx-button--square .rcx-icon {
+  font-size: 16px !important;
+}
+footer .rcx-input-box__wrapper .rcx-divider {  /* group separators: spacing, not lines (drawn via background-color) */
+  background-color: transparent !important;
+  border-color: transparent !important;
+  margin-inline: 4px !important;
 }
 
 /* ::: Quotes
