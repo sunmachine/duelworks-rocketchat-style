@@ -134,6 +134,12 @@ strong, b {
 .rcx-message-body > br + * {
   margin-top: var(--para-gap) !important;
 }
+/* Gap between the message text and the first block under it (reaction chips,
+   thread row, attachments): 8px, was 4px. Reactions → thread row stays 4px so
+   the footer still reads as one unit. */
+.rcx-message-container > .rcx-message-body + .rcx-message-block {
+  margin-top: 6px !important;
+}
 
 /* ::: Surfaces: background contrast instead of 1px divider lines
    Lightest → darkest: top bar/sidebar → channel header → channel → drawer. */
