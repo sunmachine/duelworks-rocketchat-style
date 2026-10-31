@@ -148,6 +148,14 @@ strong, b {
 .rcx-message-container > :not(.rcx-message-body):not(.rcx-message-block) + .rcx-message-block {
   margin-top: 8px !important;
 }
+/* Image attachments: rounded corners (same radius as text fields), and no
+   1px outline. The <picture> wrapper carries Fuselage's border + 2px radius;
+   it has only generated classes, so it's found via its img.gallery-item. */
+.rcx-message-container picture:has(> img.gallery-item) {
+  border: 0 !important;
+  border-radius: var(--field-radius) !important;
+  overflow: hidden !important;
+}
 
 /* ::: Surfaces: background contrast instead of 1px divider lines
    Lightest → darkest: top bar/sidebar → channel header → channel → drawer. */
