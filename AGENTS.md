@@ -125,8 +125,11 @@ URL-like.
 - Fuselage emits runtime rules like `.rcx-css-xxxx { prop: v !important }`
   (specificity 0,1,0) in stylesheets that load **after** the custom CSS. A
   single-class `!important` rule of ours loses that tie. Fix with a
-  **doubled class** (`.rcx-vertical-bar.rcx-vertical-bar`) → 0,2,0. Used for:
-  drawers, text attachments, message toolbar, typing strip, reactions row.
+  **doubled class** (`.rcx-vertical-bar.rcx-vertical-bar`) → 0,2,0. Rule of
+  thumb: **every app-wide component rule uses a doubled class** (buttons,
+  fields, selects, drawers, attachments, toolbar, typing strip, footer rows,
+  messages) — the specificity audit only covers the views you test, and an
+  app-wide rule also hits admin pages, dialogs and forms you didn't.
 - `rcx-css-*` class names are generated and unstable — never target them.
 - Prefer state attributes over classes: sidebar rows have
   `data-unread="true|false"` and `aria-current="page"`.
@@ -178,8 +181,12 @@ URL-like.
 
 **Layout constraints**
 - The sidebar is a **virtualized list**: rows are absolutely sized by
-  measured height. Don't add margins/padding to rows; use `clip-path` for
-  visual shape/gaps (paint-only).
+  measured height. Don't add margins/padding to rows.
+- **`clip-path` clips hit-testing too**, not just paint. Never toggle a clip
+  on the element whose `:hover` triggers it — the clipped band stops being
+  hovered → unhover → unclip → hover… (a per-frame flicker at row edges).
+  Paint the shape on a `::before` layer behind the content instead (see the
+  sidebar's `--row-fill` / `--row-bar`).
 - Don't add `position: relative` to drawers (`.rcx-vertical-bar`) — it can
   break mobile overlay positioning. Draw edge lines as 1px
   `background-image` layers instead of borders/pseudo-elements.
@@ -202,15 +209,26 @@ glyph subset fetched with Google Fonts' `&text=` parameter).
   (top bar/sidebar `rgb(47,52,61)` → header `--bg-header` → channel
   `rgb(31,35,41)` → drawers `--bg-drawer`), plus `--fade-line` hairlines
   that fade out at both ends where a boundary needs help. Fields are filled
-  (`--bg-field`), not outlined. Floating UI uses a soft shadow, not a border.
-- **Pills & round controls:** reactions, View thread, follow bell, composer
-  toolbar, header buttons, hover toolbar — all `--pill-h` (24px),
-  `border-radius: 999px`, 16px icons, labels at `--footer-fs` (11px/600).
+  with translucent white (`--bg-field`), so they're a step lighter than *any*
+  surface (channel, drawer, dialog, admin) — never an opaque field color.
+  Floating UI uses an opaque `--bg-float` + soft shadow, not a border.
+- **Pills & round controls (app-wide):** every `.rcx-button` is a pill
+  (text) or circle (square); every small icon button is `--pill-h` (24px)
+  with `--icon-fs` (16px) icons; mini buttons keep Fuselage's native 20px
+  (intended — same in channel and drawers). Footer labels `--footer-fs`
+  (11px/600). Primary actions use the accent tint (0.35 fill, 0.8 edge),
+  not Fuselage's `#095ad2`. The avatar button (`:has(figure)`) is exempt.
+- **Fields (app-wide):** filled, no outline, `--field-radius`; focus =
+  `--focus-ring` (keep it ≥3:1 — it's the only focus cue on every form);
+  invalid = `--rcx-color-stroke-error` edge, kept while focused; disabled =
+  `--bg-field-disabled` fill (never opacity — Fuselage already dims the text).
 - **Clipped top-right corner** (`--clip`) is the motif for highlighted
   sidebar rows and quote panels.
 - **Corners:** fields/dropdowns/images use `--field-radius`.
-- **Message rhythm:** `--msg-indent` past the byline; byline→text 8px;
-  text→footer 8px; reactions→thread row 4px; `--para-gap` for blank lines.
+- **Message rhythm** (all tokens): `--msg-indent` past the byline,
+  `--byline-gap`, `--flow-gap` (text→anything, anything→footer row),
+  `--footer-gap` (reactions→thread row, and under a last pill row),
+  `--attach-gap`, `--para-gap`, `--msg-pad` + `--author-gap`.
 - The user dislikes: header gradients, outline borders, boxy 4px radii,
   cramped spacing. Likes: subtle tints, pills, the clipped corner.
 - Don't attempt: moving the composer (user decided to keep it bottom-
@@ -223,7 +241,21 @@ All tunable values live in the `:root` block at the top of `custom.css`.
 ## File layout
 
 `custom.css` sections are marked `/* ::: Name */`, in this order:
-Emphasis → Sidebar → Messages → Surfaces → Icon buttons → Field corners →
-Composer → Quotes → Message footer → Sidebar footer logo. Put new rules in
-the matching section; keep the "why" comments — they document Fuselage
-behavior that isn't visible from the CSS alone.
+Tokens → Emphasis → Sidebar → Surfaces → Controls (buttons, pills, fields,
+composer, typing strip) → Messages (type, spacing, rhythm, media) → Quotes &
+text attachments → Sidebar footer logo. Prefer **component** rules (what
+something is) over **location** rules (where it is) so new panels inherit
+the look; keep location rules for genuinely local things. Put new values in
+`:root` as tokens. Keep the "why" comments — they document Fuselage behavior
+that isn't visible from the CSS alone.
+
+### Regression-checking a refactor
+
+Computed-style diffing beats eyeballing. Store CSS variants in the page's
+`localStorage` (they survive reloads), then for each view: disable the live
+sheet, inject variant A at production position with transitions off,
+snapshot ~50 computed properties (+ `::before`/`::after`) of every element,
+inject B, snapshot, diff. Navigate with `history.pushState` + a `popstate`
+event so page state survives. Always run a self-test (A vs A = 0 diffs) and
+a positive control (change one token, confirm it's caught). Hover states
+aren't captured — run the specificity audit for those.

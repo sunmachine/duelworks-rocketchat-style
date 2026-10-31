@@ -17,8 +17,10 @@
   --bg-header: rgb(38, 42, 50);          /* channel header */
   --bg-drawer: rgb(24, 27, 32);          /* right-hand drawers + sidebar logo footer */
   --bg-drawer-header: rgb(30, 34, 40);   /* drawer title bar */
-  --bg-field: rgb(41, 46, 54);           /* filled text fields (composer), floating toolbar */
-  --bg-field-drawer: rgb(34, 38, 45);    /* filled text fields inside a drawer */
+  --bg-field: rgba(255, 255, 255, 0.05); /* filled fields: translucent, so a field is always a step
+                                            lighter than its surface (channel, drawer, dialog, admin) */
+  --bg-field-disabled: rgba(255, 255, 255, 0.02);
+  --bg-float: rgb(41, 46, 54);           /* opaque fill for floating UI (message hover toolbar) */
   --bg-search: rgba(0, 0, 0, 0.2);       /* "Search rooms" in the top bar */
   --panel: rgba(255, 255, 255, 0.035);   /* tinted panels: quotes, text attachments, link previews */
   --panel-hover: rgba(255, 255, 255, 0.05);
@@ -52,6 +54,15 @@
   --footer-fs: 11px;                     /* reaction counts, View thread, reply count */
   --msg-indent: 12px;                    /* message content indent past the byline */
   --para-gap: 8px;                       /* blank line between paragraphs (Fuselage: a full ~23px line) */
+  --author-gap: 12px;                    /* extra space above a new author's message */
+  --msg-pad: 5px;                        /* each message's top/bottom padding (hover highlight) */
+  --byline-gap: 6px;                     /* byline → first line of text */
+  --flow-gap: 8px;                       /* text → next block; anything → reactions/thread row */
+  --footer-gap: 4px;                     /* reactions → thread row; extra space under a last pill row */
+  --attach-gap: 6px;                     /* attachment header → attachment; link-preview header → card */
+
+  /* focus */
+  --focus-ring: inset 0 0 0 1px rgba(var(--hl), 0.9);
 }
 
 
@@ -193,9 +204,10 @@ header > hr.rcx-divider {                  /* line under the channel header */
    ========================================================================== */
 
 /* Buttons — app-wide, by component (not by location), so new panels, forms
-   and dialogs pick the look up automatically. Doubled class where Fuselage
-   sets the same property via a later `.rcx-css-xxxx {…!important}`. */
-.rcx-button.rcx-button {                    /* text buttons → pills, square buttons → circles */
+   and dialogs pick the look up automatically. App-wide rules use a doubled
+   class (0,2,0) so they never tie with Fuselage's later
+   `.rcx-css-xxxx {…!important}` (0,1,0). */
+.rcx-button.rcx-button:not(:has(figure)) {  /* text buttons → pills, square → circles; avatar button keeps its shape */
   border-radius: 999px !important;
 }
 /* Primary actions (Create, Save, Send…): theme blue — the same tinted fill +
@@ -232,12 +244,12 @@ header > hr.rcx-divider {                  /* line under the channel header */
   border: 0 !important;
   border-radius: 999px !important;
   padding: 3px 5px !important;
-  background-color: var(--bg-field) !important;
+  background-color: var(--bg-float) !important;
   box-shadow: var(--shadow-float) !important;
 }
-.rcx-message-toolbar button:not(:has(.rcx-icon)) span {  /* quick-reaction emoji: 16px like reaction chips */
-  width: 16px !important;
-  height: 16px !important;
+.rcx-message-toolbar button:not(:has(.rcx-icon)) span {  /* quick-reaction emoji: icon-sized, like reaction chips */
+  width: var(--icon-fs) !important;
+  height: var(--icon-fs) !important;
   font-size: 14px !important;
   background-size: contain !important;
 }
@@ -310,36 +322,38 @@ header > hr.rcx-divider {                  /* line under the channel header */
   font-weight: 600 !important;
 }
 
-/* Fields — app-wide: filled, no outline, rounder; soft accent glow on focus
-   (not Fuselage's bright 2px ring). A field is either a bare decorated
+/* Fields — app-wide: filled, no outline, rounder; accent ring on focus
+   (replaces Fuselage's 2px ring). A field is either a bare decorated
    .rcx-input-box (forms) or a .rcx-input-box__wrapper holding an undecorated
-   one (composer, searches); dropdowns are .rcx-select. */
-.rcx-input-box:not(.rcx-input-box--undecorated),
-.rcx-input-box__wrapper,
-.rcx-select {
+   one (composer, searches); dropdowns are .rcx-select. Doubled classes:
+   these hit every form in the app, where Fuselage's Box props would
+   otherwise win a 0,1,0 tie. The translucent fill reads as "a step lighter"
+   on any surface, so no per-surface variants are needed. */
+.rcx-input-box.rcx-input-box:not(.rcx-input-box--undecorated),
+.rcx-input-box__wrapper.rcx-input-box__wrapper,
+.rcx-select.rcx-select {
   border-radius: var(--field-radius) !important;   /* rcx-box--animated: radius changes animate in */
   border-color: transparent !important;
   background-color: var(--bg-field) !important;
 }
-.rcx-vertical-bar .rcx-input-box:not(.rcx-input-box--undecorated),
-.rcx-vertical-bar .rcx-input-box__wrapper,
-.rcx-vertical-bar .rcx-select {
-  background-color: var(--bg-field-drawer) !important;
+.rcx-input-box.rcx-input-box:not(.rcx-input-box--undecorated):focus,
+.rcx-input-box__wrapper.rcx-input-box__wrapper:focus-within,
+.rcx-select.rcx-select:focus-within {
+  box-shadow: var(--focus-ring) !important;
 }
-.rcx-input-box:not(.rcx-input-box--undecorated):focus,
-.rcx-input-box__wrapper:focus-within,
-.rcx-select:focus-within {
-  border-color: transparent !important;
-  box-shadow: inset 0 0 0 1px rgba(var(--hl), 0.55) !important;
+/* disabled: a dimmer fill (not opacity — Fuselage already dims the text,
+   and multiplying both made disabled values unreadable) */
+.rcx-input-box.rcx-input-box:disabled,
+.rcx-input-box__wrapper.rcx-input-box__wrapper:has(> .rcx-input-box:disabled),
+.rcx-select.rcx-select.disabled {
+  background-color: var(--bg-field-disabled) !important;
 }
-/* disabled fields: our fill replaces Fuselage's dimmer disabled fill, so dim them explicitly */
-.rcx-input-box:disabled,
-.rcx-select.disabled {
-  opacity: 0.55;
-}
-/* invalid fields: with the outline gone, the error needs its own edge */
-.rcx-input-box[aria-invalid="true"],
-.rcx-input-box__wrapper:has([aria-invalid="true"]) {
+/* invalid: with the outline gone the error needs its own edge — kept while
+   focused (that's when the user is fixing it) */
+.rcx-input-box.rcx-input-box[aria-invalid="true"],
+.rcx-input-box.rcx-input-box[aria-invalid="true"]:focus,
+.rcx-input-box__wrapper.rcx-input-box__wrapper:has([aria-invalid="true"]),
+.rcx-input-box__wrapper.rcx-input-box__wrapper:has([aria-invalid="true"]):focus-within {
   box-shadow: inset 0 0 0 1px var(--rcx-color-stroke-error, rgb(236, 13, 42)) !important;
 }
 footer .rcx-input-box__wrapper .rcx-divider {     /* toolbar group separators (drawn with bg): spacing instead */
@@ -374,16 +388,16 @@ footer .rcx-input-box__wrapper .rcx-divider {     /* toolbar group separators (d
    new author is a transparent top border excluded from the highlight
    (background-clip) — a border, not a margin, because the message list is
    virtualized and measures item height (borders count, margins don't).
-   author→author ≈ 22px, same author 10px. */
+   author→author ≈ 22px (pad + gap + pad), same author 10px. */
 .rcx-message.rcx-message {
-  padding: 5px 24px !important;
+  padding: var(--msg-pad) 24px !important;
 }
 .rcx-message.rcx-message:not(.rcx-message--sequential) {
-  border-top: 12px solid transparent !important;
+  border-top: var(--author-gap) solid transparent !important;
   background-clip: padding-box !important;
 }
 .rcx-message-header {                       /* byline → first line */
-  margin-bottom: 6px !important;
+  margin-bottom: var(--byline-gap) !important;
 }
 /* Everything below the byline: indented, and bottom margins zeroed so each gap
    below is set by the lower item's top margin (the container is flex: margins add).
@@ -404,19 +418,19 @@ footer .rcx-input-box__wrapper .rcx-divider {     /* toolbar group separators (d
             reactions → thread row 4 · attachment part → attachment part 6.
    Footer rows are found by content (:has): link previews are .rcx-message-block too. */
 .rcx-message-container > .rcx-message-body + * {
-  margin-top: 8px !important;
+  margin-top: var(--flow-gap) !important;
 }
 .rcx-message-container > .rcx-message-block:has(.rcx-message-reactions__container, .rcx-message-metrics__content-wrapper) {
-  margin-top: 8px !important;
+  margin-top: var(--flow-gap) !important;
 }
 .rcx-message-container > .rcx-message-block:has(.rcx-message-reactions__container, .rcx-message-metrics__content-wrapper) + .rcx-message-block:has(.rcx-message-reactions__container, .rcx-message-metrics__content-wrapper) {
-  margin-top: 4px !important;
+  margin-top: var(--footer-gap) !important;
 }
 .rcx-message-container > .rcx-message-block:has(.rcx-message-reactions__container, .rcx-message-metrics__content-wrapper):last-child {
-  margin-bottom: 4px !important;            /* pills have no line leading; ≈8px below the last pill */
+  margin-bottom: var(--footer-gap) !important;            /* pills have no line leading; ≈8px below the last pill */
 }
 .rcx-message-container > :not(.rcx-message-header):not(.rcx-message-body):not(.rcx-message-block) + :not(.rcx-message-body):not(.rcx-message-block) {
-  margin-top: 6px !important;               /* "file.jpg (9 MB) ⌄" header → attachment */
+  margin-top: var(--attach-gap) !important;               /* "file.jpg (9 MB) ⌄" header → attachment */
 }
 /* Footer row boxes sized to their 24px pills (Fuselage: reactions row margin
    -2px → 20px box; thread item margin 4px 0 → 32px box). */
@@ -448,7 +462,7 @@ footer .rcx-input-box__wrapper .rcx-divider {     /* toolbar group separators (d
   overflow: hidden !important;
 }
 .rcx-message-block > :first-child + .rcx-message-generic-preview {
-  margin-top: 6px !important;               /* "Link Preview ⌄" → card */
+  margin-top: var(--attach-gap) !important;               /* "Link Preview ⌄" → card */
 }
 
 
