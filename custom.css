@@ -24,7 +24,7 @@ strong, b {
   --bg-field: rgb(41, 46, 54);         /* composer, replacing its outline */
   --bg-field-drawer: rgb(34, 38, 45);  /* composer inside a drawer */
   --fade-line: rgba(255, 255, 255, 0.14); /* center color of the fade-out divider lines */
-  --field-radius: 8px; /* text fields + dropdowns (Fuselage default 4px) */
+  --field-radius: 10.4px; /* text fields + dropdowns (Fuselage default 4px; 8px +30%) */
 }
 
 /* Shared shape for unread / selected / hover / focus: clipped corner and gap.
